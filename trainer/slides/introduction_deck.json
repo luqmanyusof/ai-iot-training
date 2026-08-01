@@ -1,0 +1,517 @@
+{
+  "$schema_note": "Slide-generation spec for an AI slide designer. Each slide has a `type` that determines layout. `speaker_notes` are for the trainer and must not be rendered on the slide. `diagram.mermaid` blocks should be rendered as diagrams, not code.",
+  "$asset_note": "Seeed images are hotlinked and HTTP-verified. Cytron images are served from `assets/` (relative to this file) because static.cytron.io returns 403 to non-browser requests — `source_url` records where each came from. If your slide tool cannot read local files, re-download from `source_url` with a browser User-Agent.",
+  "deck": {
+    "title": "AI-Assisted Embedded Development",
+    "subtitle": "Driving Devin to build firmware you can defend · ESP32",
+    "audience": "Experienced embedded / firmware / IoT engineers",
+    "duration_minutes": 75,
+    "slide_count": 26,
+    "purpose": "Day-0 orientation delivered before any hands-on work. Covers the course thesis, Devin, PlatformIO, the intake framework, the hardware, and the pre-flight checklist.",
+    "source_document": "README.md"
+  },
+  "design_direction": {
+    "tone": "Technical, direct, confident. The audience are senior engineers — no cartoon robots, no hype, no 'AI will replace you' framing.",
+    "palette": {
+      "background": "#0F172A",
+      "surface": "#1E293B",
+      "primary": "#38BDF8",
+      "accent_warning": "#FBBF24",
+      "accent_danger": "#F87171",
+      "accent_success": "#34D399",
+      "text": "#E2E8F0",
+      "text_muted": "#94A3B8"
+    },
+    "typography": {
+      "heading": "Inter, IBM Plex Sans, sans-serif",
+      "body": "Inter, sans-serif",
+      "code": "JetBrains Mono, IBM Plex Mono, monospace"
+    },
+    "rules": [
+      "Max ~6 bullets per slide; short fragments, not sentences.",
+      "Every code block uses the monospace family with syntax highlighting.",
+      "Warning slides use accent_warning as a left border or badge.",
+      "Hardware photos sit on a light neutral card so the dark deck doesn't clash with white product shots.",
+      "Never render speaker_notes on the slide."
+    ]
+  },
+  "slides": [
+    {
+      "id": 1,
+      "type": "title",
+      "title": "AI-Assisted Embedded Development",
+      "subtitle": "Driving Devin to build firmware you can defend",
+      "meta": "3 days · 9 topics · ESP32 + Grove · Engineer track",
+      "speaker_notes": "Set the tone in the first 60 seconds: this is not an AI hype course. It is an engineering-discipline course that happens to use an AI agent."
+    },
+    {
+      "id": 2,
+      "type": "statement",
+      "statement": "The AI writes the code.\nThe engineer owns correctness.",
+      "caption": "The thesis of this course. We will repeat it daily.",
+      "speaker_notes": "Say it out loud, then pause. Everything in the next three days derives from this one line."
+    },
+    {
+      "id": 3,
+      "type": "bullets",
+      "title": "What this course is — and isn't",
+      "bullets": [
+        "**Is:** learning to specify, review and verify AI-generated firmware",
+        "**Is:** catching an AI that is confidently wrong about hardware",
+        "**Isn't:** C basics, breadboarding, OSI lectures — you already have these",
+        "9 topics · ~2 hours each · 3 per day · one new PlatformIO project each",
+        "Same objective for everyone; **different code is expected**"
+      ],
+      "speaker_notes": "The audience is senior. Say explicitly that we are skipping fundamentals so we can go deep on protocol, concurrency and security."
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "How you are graded",
+      "headers": [
+        "Weight",
+        "Criterion"
+      ],
+      "rows": [
+        [
+          "30%",
+          "Working, defensible device (demoed)"
+        ],
+        [
+          "30%",
+          "**Your reusable prompt library**"
+        ],
+        [
+          "20%",
+          "**\"Caught the AI wrong\" stories** — verified against a datasheet"
+        ],
+        [
+          "20%",
+          "Production discipline — security, error handling, structure"
+        ]
+      ],
+      "callout": {
+        "style": "warning",
+        "text": "70% of your grade is not the device."
+      },
+      "speaker_notes": "This is the slide that changes behaviour. Land it hard, or participants will optimise for a flashy demo and lose most of the marks."
+    },
+    {
+      "id": 5,
+      "type": "two_column",
+      "title": "Two artifacts you build all week",
+      "columns": [
+        {
+          "heading": "Prompt library",
+          "body": "Every prompt that worked, saved as a reusable template. By T9 you should be reusing templates unedited on new hardware."
+        },
+        {
+          "heading": "Caught-the-AI log",
+          "body": "Every confident error — **with the datasheet line that proves it** and your fix. Without proof it's an anecdote, not a story."
+        }
+      ],
+      "speaker_notes": "Tell them to create both files on Day 1, Topic 1. Retrofitting them on Day 3 is obvious and scores badly."
+    },
+    {
+      "id": 6,
+      "type": "section",
+      "title": "Part 1 — The Tools",
+      "subtitle": "Devin · PlatformIO"
+    },
+    {
+      "id": 7,
+      "type": "bullets",
+      "title": "What is Devin?",
+      "bullets": [
+        "An **autonomous AI software engineer** — not autocomplete",
+        "You give a goal; it plans, writes files, runs builds, iterates",
+        "Running on the free **SWE-1.6** model for this course",
+        "Works across your whole project, not just the current buffer",
+        "**Your job shifts:** from writing code to specifying, reviewing, verifying"
+      ],
+      "speaker_notes": "Many will have used Copilot. Emphasise the difference in scope and initiative — and therefore in where the human effort goes."
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Autocomplete vs. agent",
+      "headers": [
+        "",
+        "Copilot-style",
+        "Devin"
+      ],
+      "rows": [
+        [
+          "Scope",
+          "next few lines",
+          "whole files, whole projects"
+        ],
+        [
+          "Context",
+          "current buffer",
+          "your repo + attached files"
+        ],
+        [
+          "Initiative",
+          "reactive",
+          "plans and executes multi-step work"
+        ],
+        [
+          "Your job",
+          "accept / reject",
+          "**specify, review, verify**"
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "type": "two_column",
+      "title": "Where Devin is strong — and where it fails",
+      "columns": [
+        {
+          "heading": "Genuinely good at",
+          "style": "success",
+          "body": "Boilerplate and scaffolding · library glue · refactoring · explaining unfamiliar APIs · turning a clear spec into working code fast · iterating on a precise error message"
+        },
+        {
+          "heading": "Fails at — and this is the course",
+          "style": "danger",
+          "body": "**Invents hardware facts** — pins, I²C addresses, library names, voltages · writes happy-path only · defaults to blocking `delay()` · has no idea what is physically wired to your board"
+        }
+      ],
+      "speaker_notes": "The critical nuance: it does not hedge. It states wrong hardware facts plainly and fluently. That is why the datasheet gate exists."
+    },
+    {
+      "id": 10,
+      "type": "statement",
+      "statement": "Treat Devin like a fast, knowledgeable,\noverconfident junior engineer\nwho has never seen your hardware.",
+      "caption": "Give it a written spec. Review everything against the datasheet.",
+      "speaker_notes": "This mental model does more work than any other slide. Refer back to it whenever someone is surprised by a hallucinated pin."
+    },
+    {
+      "id": 11,
+      "type": "bullets",
+      "title": "What is PlatformIO?",
+      "bullets": [
+        "A professional embedded build system inside **VS Code**",
+        "**Declared dependencies** — libraries + versions live in `platformio.ini`, in the project",
+        "Per-project board, framework, monitor speed, build flags",
+        "Real project structure and working IntelliSense",
+        "**Reproducible** — a colleague opens your folder and gets your toolchain"
+      ],
+      "speaker_notes": "Frame it as 'the Arduino IDE's global library state is why builds differ between machines'. Senior engineers feel that pain immediately."
+    },
+    {
+      "id": 12,
+      "type": "code",
+      "title": "Project layout and platformio.ini",
+      "language": "ini",
+      "code": "[env:esp32dev]\nplatform = espressif32\nboard = esp32dev\nframework = arduino\nmonitor_speed = 115200\nlib_deps =\n    adafruit/Adafruit NeoPixel\n    ; add libraries here as each topic needs them",
+      "side_panel": {
+        "heading": "Structure",
+        "body": "my_project/\n├── platformio.ini\n├── src/main.cpp\n├── include/\n├── lib/\n└── test/"
+      }
+    },
+    {
+      "id": 13,
+      "type": "table",
+      "title": "The four operations you need",
+      "headers": [
+        "Action",
+        "What it does",
+        "Shortcut"
+      ],
+      "rows": [
+        [
+          "**Build** ✓",
+          "compiles",
+          "`Ctrl+Alt+B`"
+        ],
+        [
+          "**Upload** →",
+          "compiles + flashes",
+          "`Ctrl+Alt+U`"
+        ],
+        [
+          "**Monitor** 🔌",
+          "serial at `monitor_speed`",
+          "`Ctrl+Alt+S`"
+        ],
+        [
+          "**Clean**",
+          "deletes build artifacts",
+          "—"
+        ]
+      ],
+      "callout": {
+        "style": "warning",
+        "text": "The serial monitor holds the port — close it before uploading."
+      }
+    },
+    {
+      "id": 14,
+      "type": "section",
+      "title": "Part 2 — The Framework",
+      "subtitle": "How we actually work"
+    },
+    {
+      "id": 15,
+      "type": "statement",
+      "statement": "Most AI firmware failures\nare specification failures.",
+      "caption": "The AI didn't misunderstand C. It guessed a pin, an address, or a voltage that nobody told it.",
+      "speaker_notes": "This is the justification for the entire framework. If they accept this sentence, the interview step stops feeling like overhead."
+    },
+    {
+      "id": 16,
+      "type": "diagram",
+      "title": "The loop — per topic",
+      "diagram": {
+        "format": "mermaid",
+        "mermaid": "flowchart TD\n    A[\"Step 0 — YOU create the<br/>PlatformIO project<br/>+ prove the toolchain\"] --> B[\"Step 1 — Copy starter.json<br/>+ paste kickoff prompt\"]\n    B --> C[\"Step 2 — Interview<br/>⚠ datasheet gate: attach docs\"]\n    C --> D[\"Step 3 — Approve<br/>REQUIREMENTS.md + PHASES.md\"]\n    D --> E[\"Step 4 — Build ONE phase\"]\n    E --> F[\"Step 5 — Verify vs datasheet\"]\n    F --> G[\"Step 6 — Log the catch,<br/>save the template\"]\n    G -->|next phase| E\n    style A fill:#1E293B,stroke:#38BDF8,color:#E2E8F0\n    style C fill:#422006,stroke:#FBBF24,color:#FDE68A\n    style D fill:#1E293B,stroke:#38BDF8,color:#E2E8F0\n    style F fill:#052E2B,stroke:#34D399,color:#A7F3D0"
+      },
+      "speaker_notes": "Walk the loop once. Stress that Step 4 is ONE phase — the most common failure is asking the AI to build everything."
+    },
+    {
+      "id": 17,
+      "type": "bullets",
+      "title": "Step 0 — you create the project, not the AI",
+      "bullets": [
+        "PlatformIO → New Project → `esp32dev` + Arduino",
+        "Set `monitor_speed = 115200`",
+        "**Upload something trivial and confirm it runs**",
+        "Only then copy in the starter and paste the kickoff prompt"
+      ],
+      "callout": {
+        "style": "info",
+        "text": "A broken build must be unambiguous. You own the environment; the AI owns the code tested against it."
+      },
+      "speaker_notes": "If the AI also generated platformio.ini, a failure could be code, config, or USB driver. Removing that ambiguity saves hours across nine topics."
+    },
+    {
+      "id": 18,
+      "type": "bullets",
+      "title": "The datasheet gate — the heart of the framework",
+      "bullets": [
+        "The starter **forbids** the AI assuming any pin, address, voltage, direction or timing",
+        "If a document doesn't state it, the AI must **ask** — never guess",
+        "Datasheets live in `hardware/` — attach them when asked",
+        "Everything downstream inherits errors from `REQUIREMENTS.md` — **read it before approving**",
+        "§4 hard constraints and §10 watch-the-AI are the sections that matter"
+      ],
+      "callout": {
+        "style": "warning",
+        "text": "Attaching a file is not an instruction. Devin will summarize an attached JSON unless you tell it to act — always paste the kickoff prompt."
+      }
+    },
+    {
+      "id": 19,
+      "type": "bullets",
+      "title": "Repeat runs get faster",
+      "bullets": [
+        "From T2 onward most answers are **\"same as \\<earlier topic\\>\"**",
+        "Attach that project's `REQUIREMENTS.md` — the AI imports instead of re-interviewing",
+        "Target: **10–15 minutes** of interview per topic",
+        "Depth goes into whatever is genuinely **new** this topic",
+        "Each topic guide has a *suggested answers* table — use the shape, your own words"
+      ]
+    },
+    {
+      "id": 20,
+      "type": "section",
+      "title": "Part 3 — The Hardware",
+      "subtitle": "ROBO ESP32 + six Grove modules"
+    },
+    {
+      "id": 21,
+      "type": "image_feature",
+      "title": "Cytron ROBO ESP32 Rev 1.1",
+      "image": {
+        "url": "assets/robo-esp32.png",
+        "alt": "Cytron ROBO ESP32 Rev 1.1 carrier board",
+        "source_url": "https://static.cytron.io/image/cache/catalog/products/ROBO-ESP32/roboesp32-product-1-800x800.png",
+        "credit": "Cytron"
+      },
+      "bullets": [
+        "Hosts a **30-pin NodeMCU ESP32 DevKit V1**",
+        "NeoPixel **D15** · buttons **D34/D35** · buzzer **D23**",
+        "Servo headers **D4/D5/D18/D19**",
+        "I²C **D21/D22** · UART Grove port **D16/D17**",
+        "Grove ports supply **3.3 V**"
+      ],
+      "speaker_notes": "Point out the buzzer mute switch physically — people lose ten minutes debugging silence in T1."
+    },
+    {
+      "id": 22,
+      "type": "image_grid",
+      "title": "The six modules",
+      "columns": 3,
+      "items": [
+        {
+          "label": "OLED SSD1315",
+          "sublabel": "I²C `0x3C` — SSD1306-compatible driver",
+          "image": {
+            "url": "https://files.seeedstudio.com/wiki/Grove-OLED-Display-0.96-SSD1315-/img/Grove-OLED-Displey-0.96-SSD1315-wiki.jpg",
+            "alt": "Grove OLED Display 0.96 inch SSD1315"
+          }
+        },
+        {
+          "label": "Crowtail DHT11",
+          "sublabel": "Digital 1-wire — **not I²C**; poll every 1–2 s",
+          "image": {
+            "url": "https://files.seeedstudio.com/wiki/Grove-TemperatureAndHumidity_Sensor/img/main.jpg",
+            "alt": "Grove Temperature and Humidity Sensor DHT11"
+          }
+        },
+        {
+          "label": "Rotary Angle",
+          "sublabel": "Analog — **ADC1 only (D32/D33)**",
+          "image": {
+            "url": "https://files.seeedstudio.com/wiki/Grove-Rotary_Angle_Sensor/img/rotary.jpg",
+            "alt": "Grove Rotary Angle Sensor"
+          }
+        },
+        {
+          "label": "Grove RS485",
+          "sublabel": "UART D16/D17 — half-duplex, 3.3 V safe",
+          "image": {
+            "url": "https://files.seeedstudio.com/wiki/Grove-RS485/img/preview.png",
+            "alt": "Grove RS485 module"
+          }
+        },
+        {
+          "label": "TS90A Micro Servo",
+          "sublabel": "PWM — **not Grove**, 3-pin lead · **3–6 V**, ESP32-safe · **ESP32Servo**",
+          "image": {
+            "url": "assets/ts90a-servo.jpg",
+            "alt": "TS90A 9g analog micro servo",
+            "source_url": "https://static.cytron.io/image/cache/catalog/products/TS90A/TS90A%20(5)-800x800.jpg",
+            "credit": "Cytron"
+          }
+        },
+        {
+          "label": "Gesture PAJ7660",
+          "sublabel": "I²C `0x73` *(verify by scan)* — takes Grove Port 2 from **T8**",
+          "image": {
+            "url": "https://files.seeedstudio.com/wiki/grove-gesture-paj7620/main.jpg",
+            "alt": "Grove gesture sensor"
+          }
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "type": "diagram",
+      "title": "Port allocation for the week",
+      "diagram": {
+        "format": "mermaid",
+        "mermaid": "flowchart LR\n    B[\"ROBO ESP32<br/>Rev 1.1\"]\n    B -->|\"I²C D21/D22 — Port 2\"| O[\"OLED 0x3C (T3–T7)<br/>⇄ Gesture 0x73 (T8–T9)<br/><i>one port, swapped</i>\"]\n    B -->|\"UART D16/D17\"| R[\"Grove RS485\"]\n    B -->|\"any digital\"| D[\"DHT11\"]\n    B -->|\"ADC1 D32/D33\"| K[\"Rotary Angle\"]\n    B -->|\"servo header\"| S[\"TS90A Servo\"]\n    B -.->|onboard| N[\"NeoPixel D15<br/>Buzzer D23<br/>Buttons D34/D35\"]\n    style B fill:#0C4A6E,stroke:#38BDF8,color:#E0F2FE\n    style N fill:#1E293B,stroke:#94A3B8,color:#CBD5E1"
+      },
+      "speaker_notes": "There is only ONE I²C Grove port. The OLED owns it for T3–T7; the gesture sensor takes it from T8 and the device goes headless — the T6 dashboard becomes the display. One physical swap, never both at once, so no hub or QWIIC cable is needed."
+    },
+    {
+      "id": 24,
+      "type": "numbered_warnings",
+      "title": "The seven constraints that break builds",
+      "subtitle": "Every one is a documented datasheet fact. Every one is something the AI gets wrong.",
+      "items": [
+        {
+          "n": 1,
+          "text": "**ADC2 dies when WiFi is on.** Analog on **ADC1 (D32/D33)**. Works Day 1, garbage Day 2 — looks exactly like a software bug."
+        },
+        {
+          "n": 2,
+          "text": "**D34/D35 are input-only, no pull-up.** `pinMode(34, INPUT_PULLUP)` is invalid — the AI writes it almost every time."
+        },
+        {
+          "n": 3,
+          "text": "**Servo needs `ESP32Servo`.** Stock `Servo.h` will not compile."
+        },
+        {
+          "n": 4,
+          "text": "**DHT11 is digital 1-wire, not I²C.** Address `0x38` is the DHT20 — a different part."
+        },
+        {
+          "n": 5,
+          "text": "**RS485 is half-duplex.** Two nodes, one pair, one talker at a time."
+        },
+        {
+          "n": 6,
+          "text": "**The board is 3.3 V.** ESP32 inputs are not 5 V tolerant — this is why 5 V-only Grove modules are not in the kit, and why the servo is a 3–6 V TS90A rather than a 4.8 V SG90."
+        },
+        {
+          "n": 7,
+          "text": "**No `delay()` in the main loop.** Non-blocking only — `millis()`, later FreeRTOS."
+        }
+      ],
+      "speaker_notes": "Do not rush this slide. Every trap in the nine topics traces back to one of these seven lines."
+    },
+    {
+      "id": 25,
+      "type": "checklist",
+      "title": "Before Day 1 — setup checklist",
+      "items": [
+        "**VS Code** installed",
+        "**PlatformIO IDE extension** installed",
+        "**One project built and uploaded successfully** — downloads the ESP32 toolchain (slow, once) and proves your USB drivers work",
+        "**Devin access** confirmed, session starts",
+        "USB **data** cable (not charge-only)",
+        "Kit checked against `hardware/BOM.csv`",
+        "Skimmed `hardware/kit_reference_sheet.md`"
+      ],
+      "callout": {
+        "style": "danger",
+        "text": "Do not skip the trial upload. Discovering a driver problem at 09:05 on Day 1 costs the whole room."
+      }
+    },
+    {
+      "id": 26,
+      "type": "closing",
+      "title": "Mindset for the week",
+      "bullets": [
+        "**Compiling is not working.** Working is verified on hardware, against the datasheet.",
+        "**Read `REQUIREMENTS.md` before approving it** — everything inherits its errors.",
+        "**When the AI is confidently wrong, that's a deliverable** — capture it with proof.",
+        "**Ask \"what breaks in production?\"** about every piece of code it hands you.",
+        "**Descoping is engineering** — it is graded, not penalised."
+      ],
+      "closing_statement": "Nine times this week the AI will state a hardware fact with total confidence and be wrong. Every one is catchable by reading the datasheet. That habit — not any single device — is what you take back to work on Monday.",
+      "speaker_notes": "End on the closing statement, then go straight into T1. Do not take a long Q&A here; the questions answer themselves in Topic 1."
+    }
+  ],
+  "appendix_optional_slides": [
+    {
+      "type": "table",
+      "title": "Day map",
+      "headers": [
+        "Day",
+        "Topics",
+        "You end the day with"
+      ],
+      "rows": [
+        [
+          "1",
+          "T1 GPIO · T2 Analog/ADC · T3 Comfort Monitor",
+          "A local monitor: OLED + DHT11 + knob threshold + alarm"
+        ],
+        [
+          "2",
+          "T4 WiFi · T5 HTTP/JSON · T6 MQTT→ThingsBoard",
+          "That device live on a cloud dashboard, controllable remotely"
+        ],
+        [
+          "3",
+          "T7 UART/RS485 · T8 FreeRTOS + Gesture · T9 Mini project",
+          "Your own scoped device — demoed, broken on purpose, and defended"
+        ]
+      ]
+    },
+    {
+      "type": "diagram",
+      "title": "Knowledge chain — nothing used before it is taught",
+      "diagram": {
+        "format": "mermaid",
+        "mermaid": "flowchart LR\n    A[\"prompt<br/>+ pins\"] --> B[\"digital<br/>I/O\"] --> C[\"analog<br/>ADC\"] --> D[\"I²C +<br/>1-wire\"] --> E[\"WiFi\"] --> F[\"HTTP<br/>JSON\"] --> G[\"MQTT<br/>ThingsBoard\"] --> H[\"UART<br/>RS485\"] --> I[\"FreeRTOS\"] --> J[\"architecture<br/>security\"]\n    style A fill:#0C4A6E,stroke:#38BDF8,color:#E0F2FE\n    style J fill:#052E2B,stroke:#34D399,color:#A7F3D0"
+      }
+    }
+  ]
+}

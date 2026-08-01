@@ -1,0 +1,465 @@
+{
+  "$schema_note": "Slide-generation spec for an AI slide designer. Same schema and design_direction as introduction_deck.json so both decks render consistently. `speaker_notes` are for the trainer and must not be rendered on the slide. `diagram.mermaid` blocks should be rendered as diagrams, not code.",
+  "deck": {
+    "title": "FreeRTOS on ESP32",
+    "subtitle": "Concurrency without mystery reboots · T8 teaching deck",
+    "audience": "Experienced embedded / firmware / IoT engineers",
+    "duration_minutes": 35,
+    "slide_count": 22,
+    "purpose": "The explanation portion of T8, delivered before the hands-on refactor. Covers tasks, stack sizing, cores, queues, mutexes, event-driven input, stack-overflow forensics and the watchdog. Pairs with introduction_deck.json.",
+    "source_document": "course/participant/day3/T8_freertos.md",
+    "position_in_course": "Day 3, Topic 8 — after T7 (RS485), before the T9 mini project"
+  },
+  "design_direction": {
+    "inherit_from": "introduction_deck.json",
+    "tone": "Technical and direct. This audience knows what a scheduler is — do not explain preemption from first principles. Spend the time on the ESP32-specific facts they will get wrong.",
+    "palette": {
+      "background": "#0F172A",
+      "surface": "#1E293B",
+      "primary": "#38BDF8",
+      "accent_warning": "#FBBF24",
+      "accent_danger": "#F87171",
+      "accent_success": "#34D399",
+      "text": "#E2E8F0",
+      "text_muted": "#94A3B8"
+    },
+    "typography": {
+      "heading": "Inter, IBM Plex Sans, sans-serif",
+      "body": "Inter, sans-serif",
+      "code": "JetBrains Mono, IBM Plex Mono, monospace"
+    },
+    "rules": [
+      "Max ~6 bullets per slide; short fragments, not sentences.",
+      "Code slides are the backbone of this deck — give them generous space and syntax highlighting.",
+      "Where a fact differs between vanilla FreeRTOS and ESP32, mark the ESP32 value with accent_warning.",
+      "Never render speaker_notes on the slide."
+    ]
+  },
+  "slides": [
+    {
+      "id": 1,
+      "type": "title",
+      "title": "FreeRTOS on ESP32",
+      "subtitle": "Concurrency without mystery reboots",
+      "meta": "T8 · Day 3 · ~35 min explanation, then refactor",
+      "speaker_notes": "This is the deep-dive topic for this cohort. Do not rush it — the room is senior enough to want the details."
+    },
+    {
+      "id": 2,
+      "type": "statement",
+      "statement": "You have been running FreeRTOS\nall week.",
+      "caption": "`loop()` is not the metal. It is a task the Arduino core created for you.",
+      "speaker_notes": "Open with this. It reframes everything that follows as 'taking control of something already there', not 'adding an RTOS'."
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "title": "What the Arduino core actually does",
+      "language": "cpp",
+      "code": "// Roughly what the ESP32 Arduino core sets up for you:\nxTaskCreatePinnedToCore(\n    loopTask,          // runs setup() once, then loop() forever\n    \"loopTask\",\n    8192,              // stack, in BYTES on ESP32\n    NULL,\n    1,                 // priority 1 — barely above idle\n    NULL,\n    ARDUINO_RUNNING_CORE   // = Core 1\n);",
+      "callout": {
+        "style": "info",
+        "text": "Your whole week of code has been one task, priority 1, pinned to Core 1."
+      },
+      "speaker_notes": "Ask the room what priority they think loop() runs at. Almost nobody guesses '1, barely above idle'."
+    },
+    {
+      "id": 4,
+      "type": "two_column",
+      "title": "Why one big loop stops scaling",
+      "columns": [
+        {
+          "heading": "The T6 device today",
+          "style": "danger",
+          "body": "One `loop()` juggling six responsibilities on `millis()` timers · every new feature adds another timer and another branch · the slowest thing in the loop sets the latency for everything else · nothing is independently testable"
+        },
+        {
+          "heading": "What tasks buy you",
+          "style": "success",
+          "body": "Each responsibility gets its own flow of control, its own rate, its own priority · the alarm can preempt the display · new hardware becomes a new task, not a new branch in a 400-line loop"
+        }
+      ],
+      "speaker_notes": "Frame the refactor as maintainability and latency, not performance. Nothing gets faster; things get predictable and reviewable."
+    },
+    {
+      "id": 5,
+      "type": "section",
+      "title": "Part 1 — Tasks",
+      "subtitle": "Creation · stack · priority · core"
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "title": "Creating a task — every argument matters",
+      "language": "cpp",
+      "code": "xTaskCreatePinnedToCore(\n    sensorTask,     // 1. function: void fn(void*), never returns\n    \"sensor\",       // 2. name — shows up in panics and debug output\n    4096,           // 3. stack depth — BYTES on ESP32\n    NULL,           // 4. parameter passed to the function\n    2,              // 5. priority — 0 = idle, higher = more urgent\n    &sensorHandle,  // 6. handle, for later control (or NULL)\n    1               // 7. core: 0, 1, or tskNO_AFFINITY\n);\n\nvoid sensorTask(void *pv) {\n    for (;;) {                       // a task NEVER returns\n        readSensor();\n        vTaskDelay(pdMS_TO_TICKS(2000));   // yields the CPU\n    }\n}",
+      "speaker_notes": "Walk all seven arguments. Then point out the for(;;) — a task function that returns without vTaskDelete() crashes the system."
+    },
+    {
+      "id": 7,
+      "type": "numbered_warnings",
+      "title": "Argument 3 — the stack size trap",
+      "subtitle": "This is the single most expensive misunderstanding in the topic.",
+      "items": [
+        {
+          "n": 1,
+          "text": "**Vanilla FreeRTOS takes stack depth in WORDS.** Most tutorials, most Stack Overflow answers, and most AI output assume this."
+        },
+        {
+          "n": 2,
+          "text": "**ESP32 takes it in BYTES.** A number that is 'safe' in a generic example is **4× too small** here."
+        },
+        {
+          "n": 3,
+          "text": "**`1024` is the AI's favourite default.** That is 1 KB. Add a `Serial.printf`, an ArduinoJson document, or any driver call and it overflows."
+        },
+        {
+          "n": 4,
+          "text": "**The symptom is not a stack error.** It is a boot loop, or resets that look exactly like a bad USB cable or a failing board."
+        }
+      ],
+      "callout": {
+        "style": "danger",
+        "text": "Engineers lose afternoons to this, blaming hardware. You will deliberately cause it later in this topic."
+      },
+      "speaker_notes": "This is the headline trap of T8. Say the word BYTES loudly. Everything in stage 5 pays this off."
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Priority — and what it actually means",
+      "headers": [
+        "Priority",
+        "Typical use",
+        "Note"
+      ],
+      "rows": [
+        [
+          "0",
+          "idle task",
+          "must be allowed to run — the watchdog watches it"
+        ],
+        [
+          "1",
+          "`loop()` / background work",
+          "the Arduino default"
+        ],
+        [
+          "2–3",
+          "sensor, network, display",
+          "ordinary work"
+        ],
+        [
+          "4–5",
+          "alarm / control",
+          "should preempt everything ordinary"
+        ],
+        [
+          "…24",
+          "available",
+          "`configMAX_PRIORITIES` is 25 on ESP32"
+        ]
+      ],
+      "callout": {
+        "style": "warning",
+        "text": "Higher number = more urgent. A higher-priority task that never yields will starve everything below it — including idle."
+      },
+      "speaker_notes": "Common AI failure: every task created at the same priority, or the alarm task lowest. Ask the room which task in their device deserves to preempt the others."
+    },
+    {
+      "id": 9,
+      "type": "diagram",
+      "title": "Task states",
+      "diagram": {
+        "format": "mermaid",
+        "mermaid": "stateDiagram-v2\n    [*] --> Ready: xTaskCreate\n    Ready --> Running: scheduler picks it\n    Running --> Ready: preempted by higher priority\n    Running --> Blocked: vTaskDelay / queue wait / mutex wait\n    Blocked --> Ready: timeout or event\n    Running --> Suspended: vTaskSuspend\n    Suspended --> Ready: vTaskResume\n    Running --> [*]: vTaskDelete"
+      },
+      "callout": {
+        "style": "info",
+        "text": "**Blocked is the goal.** A blocked task costs zero CPU. Busy-waiting costs everything."
+      },
+      "speaker_notes": "The one idea to land: waiting should be Blocked, not spinning. Every queue receive and mutex take in this deck is a way to block productively."
+    },
+    {
+      "id": 10,
+      "type": "diagram",
+      "title": "Two cores — and who already lives there",
+      "diagram": {
+        "format": "mermaid",
+        "mermaid": "flowchart TB\n    subgraph C0[\"Core 0 — PRO_CPU\"]\n        W[\"WiFi + Bluetooth stack<br/><i>already busy — do not starve</i>\"]\n    end\n    subgraph C1[\"Core 1 — APP_CPU\"]\n        L[\"loopTask (Arduino)\"]\n        T[\"your tasks\"]\n    end\n    style C0 fill:#422006,stroke:#FBBF24,color:#FDE68A\n    style C1 fill:#0C4A6E,stroke:#38BDF8,color:#E0F2FE"
+      },
+      "bullets": [
+        "**Core 0** runs the WiFi/BT stack — pin heavy work here and MQTT starts dropping",
+        "**Core 1** runs `loop()` by default — your tasks belong here",
+        "`tskNO_AFFINITY` lets the scheduler choose",
+        "**A 'network problem' is often a scheduling problem**"
+      ],
+      "speaker_notes": "This failure is worth demonstrating if time allows: pin a busy task to Core 0 and watch MQTT get flaky. It looks exactly like a broker or AP fault."
+    },
+    {
+      "id": 11,
+      "type": "two_column",
+      "title": "`delay()` vs `vTaskDelay()` — get this right",
+      "columns": [
+        {
+          "heading": "The myth",
+          "style": "danger",
+          "body": "\"`delay()` blocks the whole chip and starves other tasks.\"\n\nThe AI will tell you this. On ESP32 Arduino it is **not true** — `delay()` wraps `vTaskDelay()`, so it *does* yield."
+        },
+        {
+          "heading": "What is actually true",
+          "style": "success",
+          "body": "`delay()` still stalls **that task's own work** — your no-`delay()` rule was always about your own responsiveness.\n\n`vTaskDelay()` states the intent clearly in task code.\n\n⚠ `delayMicroseconds()` **busy-waits and does not yield.**"
+        }
+      ],
+      "callout": {
+        "style": "warning",
+        "text": "The real starvation risk is a loop with no delay and no yield at all — that trips the task watchdog."
+      },
+      "speaker_notes": "Be precise here. Repeating the myth costs credibility with this audience, and the nuance is a genuine catch-the-AI: it will confidently over-claim."
+    },
+    {
+      "id": 12,
+      "type": "section",
+      "title": "Part 2 — Talking Between Tasks",
+      "subtitle": "Queues · mutexes"
+    },
+    {
+      "id": 13,
+      "type": "two_column",
+      "title": "Why not just a shared global?",
+      "columns": [
+        {
+          "heading": "The tempting version",
+          "style": "danger",
+          "body": "`float g_temp;`\n\nSensor task writes it, network task reads it. The AI will tell you this is fine.\n\nIt is a **race**: a multi-byte write can be preempted halfway. `volatile` prevents the compiler caching it — it does **not** make the access atomic."
+        },
+        {
+          "heading": "The correct version",
+          "style": "success",
+          "body": "A **queue**: a thread-safe FIFO that copies your data.\n\nThe reader **blocks** until something arrives — no polling, no spinning, no torn reads.\n\nIt also decouples rates: the producer and consumer need not agree on timing."
+        }
+      ],
+      "speaker_notes": "The volatile misconception is widespread even among experienced engineers. Say plainly: volatile is about the compiler, not about concurrency."
+    },
+    {
+      "id": 14,
+      "type": "code",
+      "title": "Queues in practice",
+      "language": "cpp",
+      "code": "struct Reading { float temp; float humidity; uint32_t ts; };\n\nQueueHandle_t readingQ = xQueueCreate(5, sizeof(Reading));  // depth, item size\n\n// producer — sensor task\nReading r = { t, h, millis() };\nif (xQueueSend(readingQ, &r, 0) != pdTRUE) {\n    droppedReadings++;        // queue full: DECIDE what this means\n}\n\n// consumer — network task\nReading got;\nif (xQueueReceive(readingQ, &got, pdMS_TO_TICKS(100)) == pdTRUE) {\n    publish(got);             // blocked, not spinning, while waiting\n}",
+      "callout": {
+        "style": "warning",
+        "text": "Timeout 0 = never block. portMAX_DELAY = block forever. Both are decisions — make them deliberately."
+      },
+      "speaker_notes": "Push on queue-full policy: drop newest, drop oldest, or block the producer? There is no default right answer, which is exactly why the AI picking one silently is a problem."
+    },
+    {
+      "id": 15,
+      "type": "code",
+      "title": "Mutex — one bus, several tasks",
+      "language": "cpp",
+      "code": "SemaphoreHandle_t i2cMutex = xSemaphoreCreateMutex();\n\n// any task touching Wire must hold it\nif (xSemaphoreTake(i2cMutex, pdMS_TO_TICKS(50)) == pdTRUE) {\n    gesture.read();               // critical section: keep it SHORT\n    xSemaphoreGive(i2cMutex);     // ALWAYS release — every path\n} else {\n    busyCount++;                  // could not get the bus — handle it\n}",
+      "bullets": [
+        "An I²C transaction is **several bus operations** — preempt it halfway and both callers get garbage",
+        "You will create this contention yourself when the gesture task lands",
+        "Remove the mutex deliberately and watch reads garble and gestures vanish",
+        "**The AI's fix for bus corruption is \"add a delay.\"** That is not a fix"
+      ],
+      "speaker_notes": "Emphasise: a delay makes the race less likely, not impossible. That distinction is the whole point of a mutex."
+    },
+    {
+      "id": 16,
+      "type": "bullets",
+      "title": "Event-driven input — the gesture task",
+      "bullets": [
+        "Not every task is periodic — some should **wait for something to happen**",
+        "A gesture task blocks on the sensor, then posts an **event** to a queue",
+        "No polling in the main loop, no missed input between timer ticks",
+        "Same discipline as an ISR: **detect, post, get out** — do the work elsewhere",
+        "This is the task you add *after* the structure exists, to prove how cheap it is"
+      ],
+      "callout": {
+        "style": "info",
+        "text": "Watch how few files change when you add it. That is the return on the refactor."
+      }
+    },
+    {
+      "id": 17,
+      "type": "diagram",
+      "title": "Where you are heading — the T8 architecture",
+      "diagram": {
+        "format": "mermaid",
+        "mermaid": "flowchart LR\n    S[\"sensor task<br/>prio 2 · 0.5 Hz\"] -->|readingQ| N[\"network task<br/>prio 2 · MQTT\"]\n    S -->|readingQ| A[\"alarm/control task<br/>prio 4 · highest\"]\n    G[\"gesture task<br/>prio 3 · event-driven\"] -->|eventQ| A\n    G -.->|mutex| I{{\"I²C bus\"}}\n    D[\"diagnostics task<br/>prio 1 · HWM + heap\"]\n    A --> O[\"NeoPixel · buzzer · servo\"]\n    style A fill:#052E2B,stroke:#34D399,color:#A7F3D0\n    style I fill:#422006,stroke:#FBBF24,color:#FDE68A"
+      },
+      "callout": {
+        "style": "info",
+        "text": "Five tasks · two queues · one mutex · an essentially empty `loop()`."
+      },
+      "speaker_notes": "Put this on the board and leave it up during the build. Participants should draw their own version in Stage 0 before prompting."
+    },
+    {
+      "id": 18,
+      "type": "section",
+      "title": "Part 3 — When It Goes Wrong",
+      "subtitle": "Stack forensics · watchdog"
+    },
+    {
+      "id": 19,
+      "type": "code",
+      "title": "The instrument: high-water mark",
+      "language": "cpp",
+      "code": "// minimum free stack this task has EVER had, in BYTES on ESP32\nUBaseType_t freeBytes = uxTaskGetStackHighWaterMark(NULL);\nSerial.printf(\"task=%s hwm=%u heap=%u\\n\",\n              pcTaskGetName(NULL), freeBytes, ESP.getFreeHeap());",
+      "bullets": [
+        "It is a **low-water mark**: the worst case seen since boot, not the current free space",
+        "Run the device through its heaviest path *before* you trust the number",
+        "Size from **measurement**, then leave headroom — not from a guessed default",
+        "A number close to zero is a crash that has not happened yet"
+      ],
+      "callout": {
+        "style": "warning",
+        "text": "Both `xTaskCreate`'s stack argument and this return value are in BYTES on ESP32 — unlike vanilla FreeRTOS docs."
+      },
+      "speaker_notes": "Have them add this to every task from the start, not at the end. It is the difference between engineering and guessing."
+    },
+    {
+      "id": 20,
+      "type": "two_column",
+      "title": "Stack overflow — what it looks like from outside",
+      "columns": [
+        {
+          "heading": "What you observe",
+          "style": "danger",
+          "body": "Random resets · boot loop · \"works until it doesn't\" · fails only when the network is busy or a log line is longer than usual\n\n**It looks exactly like a bad USB cable, a flaky board, or a weak supply.**"
+        },
+        {
+          "heading": "What it actually is",
+          "style": "success",
+          "body": "A task wrote past the end of its stack.\n\nThe panic + backtrace names the task. Decode it and the answer is immediate.\n\n**You will cause this deliberately today** — shrink a stack until it panics, and read the output."
+        }
+      ],
+      "callout": {
+        "style": "danger",
+        "text": "Have the exception decoder ready. A raw backtrace with no symbols teaches nothing."
+      },
+      "speaker_notes": "This slide is the reason the topic exists. An engineer who has read one stack-overflow backtrace never loses an afternoon to it again."
+    },
+    {
+      "id": 21,
+      "type": "bullets",
+      "title": "The task watchdog",
+      "bullets": [
+        "The TWDT watches that the **idle task** on each core still gets to run",
+        "A task that loops with **no delay, no yield, no blocking call** starves it",
+        "Symptom: `Task watchdog got triggered` naming the offending task",
+        "Fix the design — yield, block on a queue, or lower the priority",
+        "**Do not** disable the watchdog to make the message go away"
+      ],
+      "callout": {
+        "style": "warning",
+        "text": "The AI's suggested fix is often to disable the watchdog. That deletes the warning, not the bug."
+      }
+    },
+    {
+      "id": 22,
+      "type": "closing",
+      "title": "What to hold on to",
+      "bullets": [
+        "**Stack depth is in BYTES on ESP32** — and `1024` is not a size, it's a guess",
+        "**Blocked beats busy** — queues and mutexes let a task wait for free",
+        "**`volatile` is about the compiler, not concurrency** — use a queue",
+        "**Core 0 belongs to WiFi** — starve it and the network looks broken",
+        "**Measure stacks, don't guess** — `uxTaskGetStackHighWaterMark` on every task",
+        "**A mystery reset is a readable backtrace** you haven't decoded yet"
+      ],
+      "closing_statement": "Now go and break it on purpose: shrink a stack until it panics, and remove the mutex until the gestures vanish. Both failures are cheap here and expensive in the field.",
+      "speaker_notes": "Straight into Stage 0 — the paper task map — before anyone opens Devin."
+    }
+  ],
+  "appendix_optional_slides": [
+    {
+      "type": "table",
+      "title": "API quick reference",
+      "headers": [
+        "Need",
+        "Call"
+      ],
+      "rows": [
+        [
+          "Create a task",
+          "`xTaskCreatePinnedToCore(fn, name, bytes, param, prio, &handle, core)`"
+        ],
+        [
+          "Sleep / yield",
+          "`vTaskDelay(pdMS_TO_TICKS(ms))`"
+        ],
+        [
+          "Periodic without drift",
+          "`vTaskDelayUntil(&lastWake, pdMS_TO_TICKS(period))`"
+        ],
+        [
+          "Create a queue",
+          "`xQueueCreate(length, sizeof(Item))`"
+        ],
+        [
+          "Send / receive",
+          "`xQueueSend(q, &item, timeout)` · `xQueueReceive(q, &item, timeout)`"
+        ],
+        [
+          "Create a mutex",
+          "`xSemaphoreCreateMutex()`"
+        ],
+        [
+          "Take / give",
+          "`xSemaphoreTake(m, timeout)` · `xSemaphoreGive(m)`"
+        ],
+        [
+          "Stack headroom",
+          "`uxTaskGetStackHighWaterMark(NULL)` — bytes on ESP32"
+        ],
+        [
+          "Free heap",
+          "`ESP.getFreeHeap()`"
+        ]
+      ]
+    },
+    {
+      "type": "numbered_warnings",
+      "title": "Catch the AI — T8 summary",
+      "items": [
+        {
+          "n": 1,
+          "text": "**Stack too small** — `1024` default, and the words-vs-bytes confusion on top of it."
+        },
+        {
+          "n": 2,
+          "text": "**Shared globals** declared safe, often without even `volatile`, and never a queue."
+        },
+        {
+          "n": 3,
+          "text": "**Unguarded I²C from two tasks** — and \"add a delay\" offered as the fix."
+        },
+        {
+          "n": 4,
+          "text": "**Gesture I²C address invented** — scan for `0x73`; the datasheet itself says verify."
+        },
+        {
+          "n": 5,
+          "text": "**Heavy work pinned to Core 0** — MQTT drops and it looks like a network fault."
+        },
+        {
+          "n": 6,
+          "text": "**Over-claiming about `delay()`** — on ESP32 Arduino it does yield; the real risk is a loop with no yield at all."
+        },
+        {
+          "n": 7,
+          "text": "**Disabling the watchdog** to silence a symptom instead of fixing the design."
+        },
+        {
+          "n": 8,
+          "text": "**All tasks at one priority**, or the alarm task lowest."
+        }
+      ]
+    }
+  ]
+}

@@ -455,8 +455,8 @@
         "**One project built and uploaded successfully** — downloads the ESP32 toolchain (slow, once) and proves your USB drivers work",
         "**Devin access** confirmed, session starts",
         "USB **data** cable (not charge-only)",
-        "Kit checked against `hardware/BOM.csv`",
-        "Skimmed `hardware/kit_reference_sheet.md`"
+        "Kit checked against the six modules listed in the README",
+        "Skimmed `hardware/kit_reference_sheet.md` — every pin, address and gotcha on one page"
       ],
       "callout": {
         "style": "danger",

@@ -5,7 +5,7 @@ who clones the default branch never receives it.
 
 | File | What it is |
 |---|---|
-| [`DELIVERY_GUIDE.md`](DELIVERY_GUIDE.md) | Catch-the-AI table, room checklist, grading notes, scheduling warning |
+| [`DELIVERY_GUIDE.md`](DELIVERY_GUIDE.md) | Catch-the-AI table, room checklist, where to put the emphasis, scheduling warning |
 | [`BOM.csv`](BOM.csv) | Kit, SKUs, prices, pin constraints — procurement |
 | [`outline_lesson_mapping.md`](outline_lesson_mapping.md) | Which module teaches which lesson, and the reasoning behind every hardware decision |
 | [`slides/`](slides/) | Both deck specs + the images they reference |

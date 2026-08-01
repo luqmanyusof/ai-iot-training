@@ -67,34 +67,34 @@
     {
       "id": 4,
       "type": "table",
-      "title": "How you are graded",
+      "title": "What you should walk away with",
       "headers": [
-        "Weight",
-        "Criterion"
+        "Outcome",
+        "Why it matters"
       ],
       "rows": [
         [
-          "30%",
-          "Working, defensible device (demoed)"
+          "Working, defensible device",
+          "you can explain every line the AI wrote"
         ],
         [
-          "30%",
-          "**Your reusable prompt library**"
+          "**A reusable prompt library**",
+          "templates you would use at work on Monday"
         ],
         [
-          "20%",
-          "**\"Caught the AI wrong\" stories** — verified against a datasheet"
+          "**A \"caught the AI wrong\" log**",
+          "each with the datasheet line that proves it"
         ],
         [
-          "20%",
-          "Production discipline — security, error handling, structure"
+          "Production discipline",
+          "security, error handling, clean structure"
         ]
       ],
       "callout": {
         "style": "warning",
-        "text": "70% of your grade is not the device."
+        "text": "There is no grading on this course. The device is the least valuable of the four — it stays on the bench; the other three come to work with you."
       },
-      "speaker_notes": "This is the slide that changes behaviour. Land it hard, or participants will optimise for a flashy demo and lose most of the marks."
+      "speaker_notes": "No assessment means nothing forces the priority except what you visibly value. Land this slide hard, or the room optimises for a demo that lights up."
     },
     {
       "id": 5,
@@ -472,7 +472,7 @@
         "**Read `REQUIREMENTS.md` before approving it** — everything inherits its errors.",
         "**When the AI is confidently wrong, that's a deliverable** — capture it with proof.",
         "**Ask \"what breaks in production?\"** about every piece of code it hands you.",
-        "**Descoping is engineering** — it is graded, not penalised."
+        "**Descoping is engineering** — a deliberate cut is a good decision, not a failure."
       ],
       "closing_statement": "Nine times this week the AI will state a hardware fact with total confidence and be wrong. Every one is catchable by reading the datasheet. That habit — not any single device — is what you take back to work on Monday.",
       "speaker_notes": "End on the closing statement, then go straight into T1. Do not take a long Q&A here; the questions answer themselves in Topic 1."

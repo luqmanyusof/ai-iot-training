@@ -33,11 +33,17 @@ carries the full version in its *Catch the AI* section.
       DE/RE direction pin and whether 120 Ω termination is fitted — the vendor pinout is an image only.
 - [ ] **T8:** every board can reach the gesture sensor — it takes Grove Port 2 from T8.
 
-### Grading notes
-- **Grade the presentation, not just the demo.** Be visibly strict or the room optimises for a flashy
-  device and loses 70% of the marks.
+### Where to put the emphasis
+**There is no grading on this course**, so the only thing steering priorities is what you visibly
+value in the room. Be deliberate about it.
+
+- **Spend as much airtime on the prompt library and the caught-AI log as on the demos.** Left alone,
+  the room will optimise for a device that lights up — the least portable of the four outcomes.
 - **Demand the datasheet line** alongside each caught-AI story — without proof it is an anecdote.
-- **Push T9 scope down early.** Reward the first participant who descopes deliberately.
+- **Push T9 scope down early.** Call out the first participant who descopes deliberately; that is
+  the behaviour you want copied.
+- **Ask "which template did you reuse today without editing?"** at every opportunity. A template that
+  survived contact with new hardware is the real evidence the method landed.
 
 > ⚠ **Scheduling:** T9's two hours cover the build, **not the presentations**. Budget ~10 min per
 > participant separately, or cut the build to 90 minutes. Decide before delivery day.

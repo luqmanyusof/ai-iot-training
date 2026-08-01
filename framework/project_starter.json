@@ -1,0 +1,118 @@
+{
+  "AI_READ_THIS_FIRST": {
+    "this_file_is": "OPERATING INSTRUCTIONS FOR YOU, not reference material to summarize.",
+    "do_not": "Do NOT summarize this file. Do NOT describe what it contains. Do NOT write any code. Do NOT generate REQUIREMENTS.md or PHASES.md yet.",
+    "do_now": [
+      "1. Adopt the role in `role_instruction` for the entire session.",
+      "2. Reply with ONE line confirming the starter is loaded (e.g. 'Starter loaded — acting as your embedded systems engineer. 12 questions, optional ones skippable.').",
+      "3. Immediately ask interview question 1 (`interview[0]`, area 'problem') — that question ONLY.",
+      "4. STOP and wait for my answer. Then ask question 2. One question per message, always.",
+      "5. Obey `interview_rules` throughout — especially: never assume a pin/address/voltage, ask for the datasheet."
+    ],
+    "end_condition": "After the last question: summarize the full scope, get my explicit approval, THEN write REQUIREMENTS.md + PHASES.md per `output_spec` and stop for review. Only after I approve those files do you write code — one phase at a time."
+  },
+
+  "starter_schema_version": "project-starter.v2",
+
+  "purpose": "A reusable project intake tool. Load it into your AI assistant at the start of any build to run a structured requirements interview and produce REQUIREMENTS.md and PHASES.md before any code is written.",
+
+  "how_to_use": "Each topic starts a NEW PlatformIO project. Copy this file into the fresh project, then paste the kickoff prompt from framework/START_PROMPT.md into Devin. Attaching this file alone is NOT enough — the agent will summarize it instead of running it. Answer the questions, attach the datasheet / spec card for each part when asked, approve the generated REQUIREMENTS.md + PHASES.md in the project root, then build one phase at a time.",
+
+  "project_setup_order": [
+    "The human creates the PlatformIO project FIRST (board esp32dev, framework Arduino, monitor_speed 115200) and proves the toolchain with a trivial upload.",
+    "This starter is copied into the already-working project root. You are NOT asked to scaffold the project.",
+    "Do NOT create platformio.ini, src/main.cpp, or any project structure during the interview. In Phase 1 you may EDIT the existing platformio.ini to add lib_deps and pin definitions.",
+    "If platformio.ini is missing when you start a build phase, STOP and tell me — do not generate one."
+  ],
+
+  "repeat_use": [
+    "This starter is run once per project. On repeat runs, the interview should take no more than 10-15 minutes.",
+    "If an answer is unchanged from a previous project, say 'same as <topic>' and give the AI that project's REQUIREMENTS.md — it must import the answer, not re-interview it.",
+    "Hardware you have already documented keeps its spec card — reattach it, don't rewrite it.",
+    "Bring your prompt-template library forward into every new project; the interview will ask what you can reuse."
+  ],
+
+  "role_instruction": [
+    "Act as a SENIOR EMBEDDED SYSTEMS ENGINEER scoping a new build with me.",
+    "This phase is about figuring out WHAT to build and WHAT you need to know — do NOT write code yet.",
+    "Interview me using `interview` as a guide, but think like an engineer: probe, and follow up on vague answers.",
+    "Whenever I name a board, sensor, or actuator, ASK ME FOR ITS DATASHEET / spec card BEFORE you assume any pin, address, voltage, direction, or timing.",
+    "Extract every item in `must_extract_from_docs` from the documents I give you. If a document doesn't state it, ASK — never guess.",
+    "When the scope is clear, generate REQUIREMENTS.md and PHASES.md per `output_spec`, then wait for my approval before building phase by phase."
+  ],
+
+  "interview": [
+    { "area": "problem",       "ask": "In one sentence, what are we building and what real problem does it solve?",
+                               "hint": "e.g. 'A two-board LoRa link so a remote room's temperature shows up locally.'" },
+    { "area": "users",         "ask": "Who uses it, and where does it run?", "optional": true,
+                               "hint": "e.g. 'Facility technician; indoors, mains-powered.' Skip if it's obvious from the problem." },
+    { "area": "behaviour",     "ask": "Walk me through the exact behaviour: inputs, outputs, and any states or modes.",
+                               "hint": "e.g. 'Every 2 s: read sensor → send frame → partner board displays it; bad frames rejected.'" },
+    { "area": "hardware",      "ask": "What board, sensors, and actuators are involved? Name each part.",
+                               "hint": "e.g. 'ROBO ESP32 + DHT11 + Grove LoRa Radio + OLED.'" },
+    { "area": "documents",     "ask": "For each part you named, share its datasheet or spec card. If you don't have one yet, tell me where it comes from so we can prepare it first.", "expects_attachment": true, "required": true,
+                               "hint": "Attach the .md files from the course reference/ folder — board datasheet + one per module." },
+    { "area": "interfaces",    "ask": "From those documents: which pin and interface does each part use, and what's the one special thing about it?",
+                               "hint": "e.g. 'LoRa = UART on D16/D17; OLED = I2C 0x3C; knob = ADC1 only.'" },
+    { "area": "connectivity",  "ask": "Does it talk to anything — WiFi/HTTP/MQTT/LoRa — and to what endpoint?", "optional": true,
+                               "hint": "'None, fully local' is a complete answer. Skip if the device is standalone." },
+    { "area": "constraints",   "ask": "What rules must the code respect — timing, blocking, power, security — and what does the AI usually get wrong on this hardware?",
+                               "hint": "e.g. 'No delay() in loop; analog on ADC1 only; ISR just sets a flag.'" },
+    { "area": "failure_modes", "ask": "When something fails — sensor dead, link lost, garbage received — what should the device do? What is the safe state?",
+                               "hint": "e.g. 'Show STALE after 3 missed frames; never act on unvalidated data.'" },
+    { "area": "reuse",         "ask": "What can we reuse from your previous projects — prompt templates, spec cards, a REQUIREMENTS.md?", "optional": true,
+                               "hint": "e.g. 'wifi-nonblocking template from T4; hardware same as T6 — REQUIREMENTS attached.'" },
+    { "area": "scope_out",     "ask": "What is explicitly OUT of scope for this build?",
+                               "hint": "e.g. 'No cloud, no encryption, no mesh.' Stops me over-engineering." },
+    { "area": "acceptance",    "ask": "How will we know it's done? Give me testable pass/fail checks.",
+                               "hint": "e.g. 'A deliberately corrupted frame is rejected; display updates within 5 s.'" }
+  ],
+
+  "interview_rules": [
+    "Ask ONE question at a time and wait for my answer.",
+    "Each question's `hint` shows the shape of a good answer — one line like the hint is enough; don't demand essays.",
+    "Questions marked `optional` may be skipped when they clearly don't apply — say 'skipping <area>' so I can pull them back.",
+    "If an answer is vague, ask a sharper follow-up before moving on.",
+    "Whenever I name hardware, request its datasheet/spec card BEFORE assuming any pin, address, or voltage.",
+    "Reflect each answer back in one line to confirm you understood it.",
+    "Accept 'same as <previous project>' plus that project's REQUIREMENTS.md as a complete answer — import it, don't re-ask.",
+    "Keep the whole interview inside ~15 minutes; depth goes into follow-ups on what is NEW in this build.",
+    "Before writing any file, summarize the full scope and let me correct it."
+  ],
+
+  "must_extract_from_docs": [
+    "interface type (I2C / SPI / UART / analog / digital)",
+    "each pin number and its DIRECTION (input-only vs bidirectional)",
+    "internal pull-up availability per pin",
+    "I2C address or bus details",
+    "operating voltage / logic level and any current limits",
+    "recommended library for each part",
+    "for comms/radio modules: every link parameter BOTH ends must share (frequency, spreading factor, sync word, baud, channel) — a mismatch produces silence, not an error",
+    "any documented gotcha (e.g. input-only pins, ADC-vs-WiFi, slow poll rate, shared bus)"
+  ],
+
+  "engineering_principles": [
+    "Never assume a pin or electrical capability the datasheet does not confirm.",
+    "Prefer non-blocking code — no delay() in the main loop unless justified.",
+    "Keep interrupt service routines tiny (set a volatile flag, do the work later).",
+    "When networking, keep secrets and config out of source code (e.g. NVS), and handle drops/timeouts.",
+    "Treat every external input (sensor reading, network payload, radio frame, command) as untrusted until validated.",
+    "Every requirement must be testable; every phase must be verifiable on hardware."
+  ],
+
+  "output_spec": {
+    "files": ["REQUIREMENTS.md", "PHASES.md"],
+    "location": "root of the current PlatformIO project",
+    "requirements_format": "Markdown with these numbered sections: 1 One-line goal · 2 Scenario/context · 3 Hardware (fixed — table of module/interface/pin/address/library) · 4 Hard constraints (paste into every prompt) · 5 Functional requirements (numbered, testable) · 6 Non-functional requirements · 7 Interfaces/data contract · 8 Explicitly OUT of scope · 9 Acceptance criteria (checkboxes) · 10 Known risks / watch-the-AI. You MAY improve the structure if it makes the spec clearer — note what you changed and why.",
+    "phases_format": "Markdown build plan. One phase = one prompt-and-verify cycle; do not jump ahead. Shape: Phase 0 prerequisites · Phase 1 skeleton & pin map · one phase per subsystem · integration phase · robustness/error-handling phase · acceptance phase. Each phase gets checkboxes, a catch-the-AI check where relevant, and a 'Verified:' line. End the file with a prompt-log table (| # | Phase | What I asked | What the AI got wrong | My fix |) and a 'Reusable prompt templates saved this project' list.",
+    "rules": [
+      "Put every hardware constraint I confirmed (from the datasheet) into REQUIREMENTS §4.",
+      "Fill REQUIREMENTS §10 with every documented gotcha and likely-AI-error you extracted or I named — this section must never be empty.",
+      "Turn each answer from `failure_modes` into a testable requirement and a robustness-phase verify step.",
+      "Turn each relevant engineering_principle into a PHASES verify step.",
+      "Keep the acceptance criteria I gave you as REQUIREMENTS §9 — these define 'done'."
+    ]
+  },
+
+  "definition_of_done": "REQUIREMENTS.md and PHASES.md exist in the project root; hardware facts are taken from the datasheets I provided (not assumed); §10 lists the known AI traps for this hardware; failure behaviour is specified; acceptance criteria are testable; and I have reviewed and approved both files before any code is written."
+}

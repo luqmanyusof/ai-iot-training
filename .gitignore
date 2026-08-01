@@ -1,0 +1,22 @@
+# Local agent/editor state — machine-specific, contains absolute paths
+.claude/
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# PlatformIO — in case a demo project is ever added here
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Scratch
+*.tmp
+*.bak
+scratchpad/

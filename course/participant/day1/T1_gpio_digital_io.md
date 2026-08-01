@@ -7,7 +7,7 @@ Everyone reaches the same objective; your code will differ because your prompts 
 - **Produce debounced, interrupt-driven input** that never misses or double-counts a press (`IRAM_ATTR` ISR + `volatile` flag, work done in `loop()`).
 - **Catch the AI on the board's pins** — D34/D35 are input-only with no pull-up; `INPUT_PULLUP` there is confidently wrong.
 - **Run a 3-state machine** (IDLE → ARMED → ALARM) with zero `delay()` in the loop.
-- **Start your prompt library** — the reusable deliverable this course grades as heavily as the device.
+- **Start your prompt library** — the deliverable that outlasts the device and comes to work with you.
 
 ## Knowledge you'll learn first (in this order)
 1. **The AI prompt skeleton** — PLATFORM + FRAMEWORK + EXACT PINS + BEHAVIOUR + CONSTRAINTS + LIBRARY + OUTPUT FORMAT.

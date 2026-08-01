@@ -90,7 +90,7 @@ When you are done, tell me:
 
 ## 3. Verify a phase — the "catch the AI" step
 
-> Run this **before** you tick the phase off. This is where the graded catches come from.
+> Run this **before** you tick the phase off. This is where your best catches come from.
 
 ```
 Review the code you just wrote for Phase <N> against REQUIREMENTS.md and the datasheets I attached.

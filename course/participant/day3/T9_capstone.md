@@ -111,17 +111,17 @@ Agree it with the trainer in Stage 0 before you build.
 | Constraints | All prior constraints still hold + validate every external input + defined fail-safe per subsystem. |
 | Failure modes | Sensor dead / WiFi down / broker down / actuator jammed → each with a **documented safe state**. |
 | Reuse *(opt.)* | The entire prompt library — this is where it pays off. |
-| Out of scope | **Your call — descoping is graded.** State plainly what you cut and why. |
+| Out of scope | **Your call — cutting scope deliberately is the engineering.** State plainly what you cut and why. |
 | Acceptance | Your own testable checks, including the induced failures. |
 
 ## Flow (stages)
-- **Stage 0 — Choose and scope (25 min):** pick your project, run the interview, **cut it to fit two hours**. Get REQUIREMENTS.md + PHASES.md approved. Deliberate descoping is graded — sprawl is not.
+- **Stage 0 — Choose and scope (25 min):** pick your project, run the interview, **cut it to fit two hours**. Get REQUIREMENTS.md + PHASES.md approved. Deliberate descoping is the skill here — sprawl is not.
 - **Stage 1 — Architecture (15 min):** one page — tasks, queues, where untrusted input is validated, what the fail-safe states are. You present from this.
 - **Stage 2 — Build (45 min):** phase by phase, reusing your prompt library. Nothing here is new hardware, so this should be the fastest build of the week.
 - **Stage 3 — Harden (20 min):** secrets audit (source, banner, git history), validate every input, write down the transport gaps you are knowingly leaving open.
 - **Stage 4 — Break it & prep (15 min):** induce your failures, confirm each degrades safely, and prepare the demo.
 
-## Present (this is graded)
+## Present your build
 Ten minutes, in this order:
 1. **Demo it working** — then **break it on purpose** and show it failing safe.
 2. **Architecture page** — tasks, queues, where untrusted input is validated.
@@ -147,16 +147,17 @@ Ten minutes, in this order:
 - [ ] No secrets in source, banner or history; topics namespaced.
 - [ ] Architecture page, prompt library and caught-AI log ready to present.
 
-## How you're graded
-| Weight | Criterion |
+## What a good capstone looks like
+| | |
 |---|---|
-| 30% | Working, defensible device (demoed) |
-| 30% | Prompt library quality & reuse |
-| 20% | "Caught the AI wrong" stories, verified against datasheet |
-| 20% | Production discipline — security, error handling, clean FreeRTOS structure |
+| **Working, defensible device** | demoed — and you can explain every line of it |
+| **Prompt library** | templates you reused today *without editing* |
+| **"Caught the AI wrong" log** | each story backed by the datasheet line that proves it |
+| **Production discipline** | security, error handling, clean FreeRTOS structure |
 
-**70% of your grade is not the device.** A smaller project with an excellent prompt library, sharp
-caught-AI stories and an honest security posture beats a sprawling demo you cannot defend.
+**The device is the least valuable of the four.** A smaller project with an excellent prompt library,
+sharp caught-AI stories and an honest security posture is worth more than a sprawling demo you cannot
+explain — and the three that matter are the ones you take back to work.
 
 ## Save to your prompt library
 - `architecture-review` template · `security-audit` template · `validate-external-input` template — plus

@@ -47,17 +47,19 @@ catch it when it is confidently wrong.
   differ. That is expected and it is the point.
 - **One new PlatformIO project per topic.** The device grows across the week.
 
-**How you are graded**
+**What you should walk away with**
 
-| Weight | Criterion |
+| | |
 |---|---|
-| 30% | Working, defensible device (demoed) |
-| 30% | **Your reusable prompt library** |
-| 20% | **"Caught the AI wrong" stories**, verified against a datasheet |
-| 20% | Production discipline — security, error handling, clean structure |
+| A working, defensible device | you can explain every line the AI wrote |
+| **A reusable prompt library** | templates you would actually use at work on Monday |
+| **A "caught the AI wrong" log** | each entry with the datasheet line that proves it |
+| Production discipline | security, error handling, clean structure |
 
-**70% of your grade is not the device.** A smaller build with an excellent prompt library and sharp
-caught-AI stories beats a sprawling demo you cannot defend. Plan accordingly from Topic 1.
+**There is no grading on this course** — which makes the priority clearer, not vaguer. **The device
+is the least valuable of the four.** It stays on the bench; the other three come to work with you.
+A smaller build with an excellent prompt library and sharp caught-AI stories is worth more than a
+sprawling demo you cannot explain. Aim accordingly from Topic 1.
 
 **Two artifacts you build all week — start them on Day 1**
 1. **Prompt library** — every prompt that worked, saved as a reusable template.
@@ -171,7 +173,7 @@ until you approve.** §4 (hard constraints) and §10 (watch-the-AI) are the sect
 
 **Step 4 — Build one phase at a time.** Never "build everything."
 
-**Step 5 — Verify each phase against the datasheet.** **This is where your graded catches come
+**Step 5 — Verify each phase against the datasheet.** **This is where your best catches come
 from.** Compile ≠ correct.
 
 **Step 6 — Log it.** Prompt-log entry + save any reusable template.
@@ -267,7 +269,7 @@ tasks and queues.
 - **Read `REQUIREMENTS.md` before approving it** — everything downstream inherits its errors.
 - **When the AI is confidently wrong, that's a deliverable** — capture it with proof.
 - **Ask "what breaks in production?"** about every piece of code it hands you.
-- **Descoping is engineering** — it is graded, not penalised.
+- **Descoping is engineering** — a deliberate cut is a good decision, not a failure.
 
 ---
 

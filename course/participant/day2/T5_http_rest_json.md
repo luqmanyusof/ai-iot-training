@@ -32,7 +32,7 @@ Talk to a server that lies to you. By the end you can:
 |---|---|---|
 | Carrier + WiFi | ROBO ESP32 | — |
 | Display | OLED SSD1315 | I²C `0x3C`, Grove Port 2 (D21/D22) |
-| Environment | Crowtail DHT11 | digital 1-wire |
+| Environment | Crowtail DHT11 | digital 1-wire | **Grove Port 3 (D26 / D25)** |
 | Local threshold | Rotary Angle | ADC1 (D32/D33) |
 | Alarm | Buzzer + NeoPixel | D23 / D15 |
 | Endpoint | test REST endpoint (trainer-provided) | network |

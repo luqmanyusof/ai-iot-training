@@ -208,7 +208,7 @@ Hosts a **30-pin NodeMCU ESP32 DevKit V1**.
 | **I²C Grove Port 2 (D21/D22)** | **OLED (T3–T7)** → **Gesture (T8–T9)** — one port, swapped once |
 | Maker / QWIIC (D21/D22) | *(free — same pins, but a QWIIC connector)* |
 | **UART (D16/D17)** | **Grove RS485** |
-| Any digital port | Crowtail DHT11 |
+| **Grove Port 3 (D26/D25)** | Crowtail DHT11 |
 | **ADC1 (D32/D33)** | Rotary Angle |
 | Servo header | TS90A Micro Servo |
 
@@ -217,7 +217,7 @@ Hosts a **30-pin NodeMCU ESP32 DevKit V1**.
 | Module | Interface | Key fact |
 |---|---|---|
 | **OLED SSD1315** | I²C `0x3C` | SSD1315 works with SSD1306 drivers |
-| **Crowtail DHT11** | digital 1-wire | **not I²C**; slow — poll every 1–2 s |
+| **Crowtail DHT11** | digital 1-wire, **Grove Port 3 (D26/D25)** | **not I²C**; slow — poll every 1–2 s |
 | **Rotary Angle** | analog | **ADC1 only (D32/D33)**; 300°, 10 k |
 | **Grove RS485** | UART D16/D17 | 3.3 V/5 V safe; **half-duplex**; A→A, B→B |
 | **TS90A Micro Servo** | PWM | **not Grove** — 3-pin lead; 3–6 V; **ESP32Servo**, never `Servo.h` |

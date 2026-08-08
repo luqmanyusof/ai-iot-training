@@ -28,7 +28,7 @@ The full kit is available. Pick what your project actually needs — nothing mor
 |---|---|---|
 | **Inputs** | Rotary Angle | analog, **ADC1 (D32/D33)** |
 | | Buttons ×2 | **D34/D35, input-only** |
-| | DHT11 | digital 1-wire, ~1 Hz |
+| | DHT11 | digital 1-wire, **Grove Port 3 (D26 / D25)**, ~1 Hz |
 | | Gesture PAJ7660 | I²C `0x73`, **takes Grove Port 2** |
 | **Outputs** | NeoPixel | D15 |
 | | Buzzer | D23 |

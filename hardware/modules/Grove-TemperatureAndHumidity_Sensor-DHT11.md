@@ -30,7 +30,9 @@ The kit uses the Crowtail DHT11, which is Grove-connector compatible.
 
 ## On the ROBO ESP32
 
-- **Any digital Grove port.** It is not on the I2C bus.
+- **Grove Port 3 — D26 or D25.** One signal wire; tell the AI which of the two you actually wired.
+- It is **not** on the I2C bus.
+- D25/D26 are ADC2-capable pins, which is irrelevant here because this sensor is read digitally — but it does mean the port is a poor choice for an analog sensor.
 
 ## Library
 

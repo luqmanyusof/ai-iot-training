@@ -26,7 +26,7 @@ Three parts, one non-blocking device. By the end you can:
 ## Hardware this topic
 | Role | Part | Interface | Where |
 |---|---|---|---|
-| Environment | Crowtail DHT11 | digital 1-wire | any digital Grove port |
+| Environment | Crowtail DHT11 | digital 1-wire | **Grove Port 3 (D26 / D25)** |
 | Display | OLED SSD1315 | I²C `0x3C` | Grove Port 2 (D21/D22) |
 | Threshold knob | Rotary Angle | analog | ADC1 (D32/D33) |
 | Alarm | Buzzer + NeoPixel | digital | D23 / D15 |
@@ -50,7 +50,7 @@ Build a Smart Comfort Monitor where:
 | Behaviour | Read DHT11 every 2 s → render OLED; knob sets threshold; reading vs threshold → OK/WARN/ALARM → NeoPixel + buzzer. |
 | Hardware | ROBO ESP32 + DHT11 + OLED SSD1315 + Rotary Angle; onboard buzzer + NeoPixel. |
 | Documents | Attach `hardware/modules/Grove-TemperatureAndHumidity_Sensor-DHT11.md`, `hardware/modules/Grove-OLED-Display-0.96-SSD1315.md`, `hardware/modules/Grove-Rotary_Angle_Sensor.md` and the board datasheet. |
-| Interfaces | DHT11 = **digital 1-wire** on any digital port; OLED = I²C `0x3C` on D21/D22 (SSD1306-compatible driver); rotary = ADC1. |
+| Interfaces | DHT11 = **digital 1-wire on Grove Port 3 (D26 or D25)**; OLED = I²C `0x3C` on D21/D22 (SSD1306-compatible driver); rotary = ADC1. |
 | Connectivity | None — deliberately local. Everything must be trustworthy on the bench first. |
 | Constraints | DHT11 is NOT I²C (`0x38` is the DHT20 — a different part); poll no faster than 1–2 s; independent `millis()` timers; no `delay()` anywhere. |
 | Safety | Sensing and indication only — nothing moves or heats. **Must never happen:** the alarm firing on an invalid or missing sensor reading, or a failed read being treated as `0`. **Safe state on boot:** quiet, OK state, alarm suppressed until the first valid reading arrives. A failed or NaN read holds the last good value and is flagged as stale rather than acted on. |
@@ -62,7 +62,7 @@ Build a Smart Comfort Monitor where:
 ## Flow (stages)
 - **Stage 0 — I²C scan (10 min):** prompt for an I²C scanner; confirm **`0x3C`** (OLED) appears.
 - **Stage 1 — OLED hello (20 min):** prompt to init the SSD1315 (SSD1306-compatible) and print two text lines.
-- **Stage 2 — DHT11 read (20 min):** prompt to read DHT11 every 2 s on a digital pin; print to serial.
+- **Stage 2 — DHT11 read (20 min):** prompt to read DHT11 every 2 s on its digital pin (**Grove Port 3, D26 or D25** — tell the AI which one you wired); print to serial.
 - **Stage 3 — Render (20 min):** show `Temp: xx.x C` and `Humidity: xx %` on the OLED, refreshed non-blocking.
 - **Stage 4 — Threshold (20 min):** add the Rotary knob to set a threshold; filter it and display it.
 - **Stage 5 — Comfort logic (25 min):** compare reading to threshold → OK/WARN/ALARM → NeoPixel colour + buzzer, all in one non-blocking loop.

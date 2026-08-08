@@ -169,7 +169,7 @@ constraints, **safety**, failure modes, scope, acceptance.
 any pin, address, voltage, direction or timing. Spec cards are in `hardware/modules/`.
 
 **Step 3 — Approve `REQUIREMENTS.md` + `PHASES.md`.** Read them. Correct them. **Nothing is coded
-until you approve.** §4 (hard constraints) and §10 (watch-the-AI) are the sections that matter.
+until you approve.** §4 (hard constraints), §5 (safety and safe resting states) and §11 (watch-the-AI) are the sections that matter.
 
 **Step 4 — Build one phase at a time.** Never "build everything." **Every phase ends with a physical
 test on the real device** — an LED, a beep, a movement, a number on the serial monitor. "It compiles"
@@ -263,7 +263,7 @@ tasks and queues.
       and proves your USB drivers work. **Do not skip this.**
 - [ ] **Devin access** confirmed, session starts
 - [ ] USB **data** cable (not charge-only)
-- [ ] Kit checked against the six modules in §5
+- [ ] Kit checked against the six modules listed in "The hardware" above
 - [ ] Skimmed [`hardware/kit_reference_sheet.md`](hardware/kit_reference_sheet.md)
 
 ### Mindset

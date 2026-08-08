@@ -109,7 +109,8 @@ Check specifically:
 - Does every address / interface / link parameter match the document, not your memory?
 - Any blocking call (delay, while-wait) that violates §4?
 - Any external input used without validation?
-- Anything in REQUIREMENTS §10 "watch the AI" that you have just done anyway?
+- Anything in REQUIREMENTS §11 "watch the AI" that you have just done anyway?
+- Does anything here violate the safety requirements or safe resting states in §5?
 
 For each issue: quote the line, quote the datasheet fact that contradicts it, and propose the fix.
 If you find nothing, say so explicitly — do not invent issues.

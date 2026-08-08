@@ -13,7 +13,7 @@ yours carries on as if nothing happened.
 ## Objective
 By the end you can:
 - **Join a network without blocking** — a connect state machine with timeout and backoff, so nothing else on the device stalls waiting for WiFi.
-- **Make HTTP requests** — a `GET` that fetches a setting, and a `POST` that uploads your readings.
+- **Make HTTP requests** — a `GET` that fetches a setting, and a `POST` on the same path that uploads your readings.
 - **Parse defensively** — status code, then parse error, then field presence and type, before any value is trusted.
 - **Fail toward last-good** — a broken server never leaves the device acting on garbage or acting on nothing.
 - **Set timeouts that mean something** — a server that accepts your connection and then goes silent must cost you seconds, not forever.
@@ -43,14 +43,40 @@ By the end you can:
 > is not ready, point your client at the trainer's reference server instead — the client code does
 > not care which it is talking to.
 
+## The shared contract — the server you talk to implements this
+
+Every server in the room serves **exactly this**, so **your client works against any of them** —
+your partner's board, another pair's board, or the trainer's fallback server. You do not negotiate
+it; it is already agreed. That is the point: interoperability comes from a written contract.
+
+```
+GET /api/reading
+  -> 200 application/json
+     {"device":"node-a","temp":24.5,"humidity":61.0,"uptime_s":1234,"threshold":26.0}
+
+POST /api/reading
+  body: {"device":"node-b","temp":23.1,"humidity":58.0,"uptime_s":99}
+  -> 200 {"ok":true}
+  -> 400 {"ok":false,"error":"<reason>"}   malformed body or value out of range
+  -> 404                                    any other path
+```
+
+**Accepted ranges** — the server rejects anything outside these, and so must you before you trust a
+value: `temp` −40…80 °C · `humidity` 0…100 % · `threshold` 0…50 °C · `device` a non-empty string.
+
+**You consume the `GET` and drive the `POST`.** Take the server's `threshold` from the `GET` and
+apply it if valid; send your own reading to the `POST`. **Assume nothing about the server's health** —
+the fields above are what a *correct* server returns, not what you will always receive.
+
 ## Your requirement
 Build a **network client node**, where:
 - The board **joins an existing WiFi network** as a station, non-blocking, with backoff on failure.
-- It **`GET`s a threshold** from the server on an interval and applies it when the answer is valid.
-- It **`POST`s its own readings** — temperature, humidity, uptime — as JSON on an interval.
-- The OLED shows link state, the active threshold and **where that threshold came from** (`REMOTE` or `LOCAL`).
+- It **`GET`s `/api/reading`** on an interval and applies the server's `threshold` when the answer is valid.
+- It **`POST`s its own reading** to `/api/reading` on an interval, in the contract's shape.
+- The OLED shows link state, the active threshold and **where it came from** (`REMOTE` or `LOCAL`), plus the peer temperature from the last good `GET`.
 - Any server failure — unreachable, slow, `500`, HTML instead of JSON, half a response — means **fall back to the knob**, visibly, and retry later.
 - **No network call ever blocks** the sensing, display or alarm path.
+- **It works against any contract-compliant server**, not just your partner's.
 
 > **How you capture this:** create a **new PlatformIO project** (you create it, toolchain proven first —
 > `framework/START_PROMPT.md` §0), copy `framework/project_starter.json` into it, and kick off with
@@ -62,24 +88,24 @@ Build a **network client node**, where:
 |---|---|
 | Problem | A sensor node that joins a network, takes its configuration from a server, reports its readings back, and keeps working correctly when that server misbehaves. |
 | Users *(opt.)* | Deployed sensor reporting to a supervisor system that is not always healthy. |
-| Behaviour | Non-blocking join. Every 5–10 s: `POST` readings; every 10–30 s: `GET` the threshold and apply it if valid. OLED shows link state, active threshold and its source. Alarm runs off whichever threshold is currently trusted. |
+| Behaviour | Non-blocking join. Every 5–10 s: `POST` own reading to `/api/reading`; every 10–30 s: `GET /api/reading` and apply the returned `threshold` if valid. OLED shows link state, active threshold, its source, and the peer temperature. Alarm runs off whichever threshold is currently trusted. |
 | Hardware | ROBO ESP32 (onboard WiFi in station mode) + DHT11 + OLED SSD1315 + Rotary Angle; onboard buzzer and NeoPixel. |
-| Documents | Attach the DHT11, OLED and Rotary spec cards from `hardware/modules/`, plus the board datasheet — and the server's endpoint URLs and JSON schema. |
+| Documents | Attach the DHT11, OLED and Rotary spec cards from `hardware/modules/`, plus the board datasheet. The endpoint contract is fixed and stated above — no negotiation needed. |
 | Interfaces | DHT11 = digital 1-wire on **Grove Port 3 (D26 or D25)**; OLED = I²C `0x3C` on D21/D22; knob = **ADC1 (D32/D33) only**. |
-| Connectivity | **Station mode** — joins the server's network. `GET /api/config` for the threshold, `POST /api/reading` for telemetry. Plain HTTP, port 80. |
+| Connectivity | **Station mode** — joins the server's AP. `GET /api/reading` for the threshold and peer data, `POST /api/reading` for my own telemetry. Plain HTTP, port 80, server at `192.168.4.1`. |
 | Constraints | No blocking connect — state machine with timeout and backoff capped ~30 s; explicit `setTimeout()` on every request; `http.end()` on every path including failures; ArduinoJson only, never `String` concatenation; requests on their own `millis()` interval, never in the sensing path. |
 | Safety | Sensing and indication only — nothing moves or heats. **Must never happen:** an unvalidated or out-of-range remote threshold being applied, or a slow/unreachable server delaying the sensing and alarm path. Every remote value is range-checked before use; anything invalid is rejected, the local knob value is retained, and the source is shown as `LOCAL`. **Safe state on boot:** local threshold, alarm armed, before any request succeeds. |
 | Failure modes | Transport failure, non-200, parse error, missing or wrong-typed field → keep last-good, show `LOCAL`, retry next interval. Silent server → request times out in ≤5 s. Network lost → keep sensing and alarming locally, reconnect with backoff. |
 | Reuse *(opt.)* | Any prompt templates you already have that fit — non-blocking timers, sensor reads, display rendering. If you have none yet, this project starts the library. |
 | Out of scope | No server code on this board, no MQTT, no TLS, no auth beyond a static token, no OTA. |
-| Acceptance | Joins the network without ever blocking the loop; applies a valid remote threshold and shows `REMOTE`; survives `500`, HTML body, truncated JSON and a silent server with no crash and no bad action; falls back to `LOCAL` visibly; POSTs well-formed JSON the server accepts; alarm latency unaffected throughout. |
+| Acceptance | Joins the network without ever blocking the loop; applies a valid remote threshold and shows `REMOTE`; survives `500`, HTML body, truncated JSON and a silent server with no crash and no bad action; falls back to `LOCAL` visibly; POSTs contract-shaped JSON the server answers `200` to; **works unchanged against another pair's server**; alarm latency unaffected throughout. |
 
 ## Flow (stages)
-- **Stage 0 — Find your server (10 min):** agree who is serving. Note the SSID, password, the board's IP, the two endpoint paths and the JSON schema. Confirm from a laptop with `curl` that the server actually answers **before** writing any client code.
+- **Stage 0 — Find your server (10 min):** agree who is serving. Note their SSID, password and IP — the paths and JSON shape are already fixed by the contract. Confirm from a laptop with `curl` that the server actually answers **before** writing any client code.
 - **Stage 1 — Join without blocking (20 min):** prompt for a station connect as a state machine with timeout and backoff. **Test:** the OLED keeps refreshing and the alarm still fires *while* it is connecting — and when you give it a wrong password, nothing on the device freezes. Save a **wifi-station-nonblocking** template.
-- **Stage 2 — First GET (20 min):** fetch the config JSON and print the threshold to serial. **Test:** partner changes the value on their server, you see the new number arrive. Save an **http-client-get** template.
+- **Stage 2 — First GET (20 min):** fetch `/api/reading` and print the threshold and peer temperature to serial. **Test:** partner turns their knob to change the threshold they publish, and you see the new number arrive. Save an **http-client-get** template.
 - **Stage 3 — Break the server on purpose (30 min):** ask your partner to make their endpoint return `500`, then an HTML page, then half a JSON object, then nothing at all. Harden the parse: transport → status → `DeserializationError` → field presence and type → last-good fallback. **Test:** all four hostile modes handled, alarm never disturbed. **This stage is the topic.**
-- **Stage 4 — POST your readings (25 min):** serialize temp, humidity and uptime with ArduinoJson and POST on a non-blocking interval. **Test:** your partner sees your records arriving on their server, and the values track when you breathe on your sensor.
+- **Stage 4 — POST your readings (25 min):** serialize your reading in the contract shape with ArduinoJson and POST it on a non-blocking interval. **Test:** your partner's OLED shows *your* values as its peer reading, and they track when you breathe on your sensor. Then **point your client at another pair's server** — it should work with no code change.
 - **Stage 5 — Pull the plug (15 min):** partner powers down their board mid-request. **Test:** your request times out within 5 s, the display flips to `LOCAL`, the alarm keeps working on the knob value, and it recovers by itself when their board comes back.
 
 ## Catch the AI
@@ -90,12 +116,14 @@ Build a **network client node**, where:
 - ⚠ **`String` concatenation to build JSON** — heap fragmentation on a device meant to run for weeks. Demand ArduinoJson serialization.
 - ⚠ **Missing `http.end()`**, or a fresh `begin()` every loop — connections leak until the device stops working.
 - ⚠ **Assuming the server is up.** Its happy-path code has no branch for "no reply at all", which is the most common real condition.
+- ⚠ **It invents its own JSON shape.** Left alone it will send `temperature`, `hum`, `ts` — its own field names — and the server will reject every POST with `400`. The contract is fixed; paste it into the prompt.
 - ⚠ **Hardcoded SSID and password** in the source, often printed to serial at boot.
 
 ## Done when (shared objective)
 - [ ] Joins the network with **no blocking loop** — sensor, display and alarm run throughout, including on a wrong password.
 - [ ] **`GET` applies a valid remote threshold**; OLED shows `REMOTE` vs `LOCAL`.
-- [ ] **`POST` sends well-formed JSON** your partner's server accepts, with live values.
+- [ ] **`POST` sends contract-shaped JSON** the server answers `200` to, with live values appearing on its display.
+- [ ] **Works unchanged against another pair's server** — the contract holds.
 - [ ] Survives **`500`, HTML instead of JSON, truncated JSON and a silent server** — no crash, no hang, no acting on garbage.
 - [ ] Falls back to the knob **visibly** and recovers by itself when the server returns.
 - [ ] Every request has an explicit timeout; `http.end()` on all paths; alarm never blocked.

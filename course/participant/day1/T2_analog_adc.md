@@ -51,6 +51,7 @@ Build a device where:
 | Interfaces | Rotary = analog on **ADC1 (D32/D33) only**; NeoPixel = D15. |
 | Connectivity | None. |
 | Constraints | ADC1 only — ADC2 dies when WiFi turns on (Day 2 depends on this); 12-bit 0–4095; non-blocking loop. |
+| Safety | **Low risk — sensing and indication only; nothing moves.** The NeoPixel at full brightness is uncomfortable to look at directly — keep it dim while you are bench-testing at close range. |
 | Failure modes | Raw jitter must never reach the output — filter first; note the flat zones near 0/4095. |
 | Reuse *(opt.)* | T1 REQUIREMENTS (board facts) + digital-output template. |
 | Out of scope | No network, no display, no thresholds (T3 adds those). |

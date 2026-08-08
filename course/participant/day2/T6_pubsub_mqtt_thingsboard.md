@@ -60,6 +60,7 @@ Extend your monitor so that:
 | Interfaces | TB telemetry `v1/devices/me/telemetry`; RPC `v1/devices/me/rpc/request/+`; own broker `training/<room>/<device>/telemetry`. |
 | Connectivity | MQTT to the room broker + ThingsBoard. **Auth: token = MQTT username, password empty.** |
 | Constraints | `client.loop()` every iteration; non-blocking publish + backoff reconnect; token in NVS; namespaced topics; tiny callback; validate inbound JSON (T5 discipline). |
+| Safety | **Low risk, but the cloud can now command the device.** Range-check every RPC before applying it; an out-of-range value is rejected and logged, never applied. Losing the broker must not leave the alarm disabled — local alarming continues regardless. |
 | Failure modes | Broker gone → local alarm continues, backoff reconnect, LWT fires; malformed command rejected, never applied. |
 | Reuse *(opt.)* | T5 REQUIREMENTS; defensive-json-parse template for inbound payloads. |
 | Out of scope | No TLS/8883, no provisioning API, no OTA, no rules engine. |

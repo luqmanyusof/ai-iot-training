@@ -120,6 +120,7 @@ Agree it with the trainer in Stage 0 before you build.
 | Interfaces | One I²C device only (gesture `0x73` **or** OLED `0x3C`); servo on the servo header; knob on ADC1. |
 | Connectivity | WiFi + MQTT/ThingsBoard: telemetry up, validated RPC down. RS485 only for project 4. |
 | Constraints | All prior constraints still hold + validate every external input + defined fail-safe per subsystem. |
+| Safety | **Required whatever you pick.** If your project moves a servo or drives a latch: define the park position for boot, fault *and* power loss; enforce travel limits in software; accept only validated commands. If it is sensing/indication only, say so and state why. Anything left running unattended needs a timeout or watchdog. |
 | Failure modes | Sensor dead / WiFi down / broker down / actuator jammed → each with a **documented safe state**. |
 | Reuse *(opt.)* | The entire prompt library — this is where it pays off. |
 | Out of scope | **Your call — cutting scope deliberately is the engineering.** State plainly what you cut and why. |

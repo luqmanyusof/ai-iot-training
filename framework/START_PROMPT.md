@@ -54,6 +54,13 @@ For the rest of this session you must follow the starter's `role_instruction` an
 - NEVER assume a pin, address, voltage, direction or timing. Ask me for the datasheet first, and
   extract everything in `must_extract_from_docs` from it.
 
+Safety is a required question, not an optional one — if anything moves, heats, draws real current or
+runs unattended, pin down the safe resting state for boot, fault and power loss before we design it.
+
+Every phase in PHASES.md must end with a HARDWARE TEST: a specific physical action and the exact
+observable result. "It compiles" is not a test. If a phase cannot be observed on hardware, merge it
+with the next one.
+
 When the interview is done: summarize the full scope in one block, wait for my approval, and only
 then write REQUIREMENTS.md and PHASES.md per `output_spec` into the project root. Then stop.
 ```
@@ -83,7 +90,9 @@ Rules:
 When you are done, tell me:
 1. What you built, in three lines.
 2. Which REQUIREMENTS §4 constraints your code satisfies, and how.
-3. Anything you had to assume — flag it explicitly so I can check it against the datasheet.
+3. Any safety-relevant behaviour this phase introduces or changes (§5).
+4. **The exact hardware test to run now** — what to do, and what I should see, hear or measure.
+5. Anything you had to assume — flag it explicitly so I can check it against the datasheet.
 ```
 
 ---

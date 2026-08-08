@@ -1,6 +1,15 @@
 # T7 · UART & RS485 — Cross-Control Across an Industrial Bus
 **Day 3 · ~2 hours · Participant guide**
 
+## What you'll build
+**In plain words:** two boards joined by a single pair of wires, with no network involved at all.
+You turn your knob and **your partner's motor arm moves**. They turn theirs and yours moves. Both
+directions at once, sharing one wire.
+
+**The moment it works:** you and your partner turn your knobs at the same time and both arms track
+smoothly. Then pull a wire out — instead of freezing wherever they happened to be, both arms move
+to a safe parked position.
+
 ## Objective
 Drop the network entirely and build a wired industrial link. By the end you can:
 - **Use UART deliberately** — three ESP32 UARTs, remapped pins, and the `Serial2.begin(baud, SERIAL_8N1, RX, TX)` pin order that silently breaks everything when reversed.

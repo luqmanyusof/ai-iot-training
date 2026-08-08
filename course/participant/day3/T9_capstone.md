@@ -1,6 +1,17 @@
 # T9 · Capstone — Your Mini Project
 **Day 3 · ~2 hours + presentations · Participant guide**
 
+## What you'll build
+**In plain words:** whatever you decide. You already have every input, every output and a working
+cloud link — today you pick a device worth building, cut it down to what actually fits in two hours,
+build it, and then break it on purpose to show it fails safely.
+
+Six starting points are below — a vent controller, a cold-chain alarm, a touchless access panel, a
+two-board sensing cell, a calibration rig — or bring your own idea.
+
+**The moment it works:** you demo it, then deliberately unplug something in front of people and the
+device does something sensible instead of something alarming.
+
 ## Objective
 No new hardware. No new protocol. You have every input, every output and a working cloud pipeline —
 today you decide **what to build with them** and defend it. By the end you can:

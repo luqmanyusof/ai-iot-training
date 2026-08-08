@@ -1,6 +1,14 @@
 # T8 · FreeRTOS — Concurrency Without Mystery Reboots
 **Day 3 · ~2 hours · Participant guide**
 
+## What you'll build
+**In plain words:** the same device, rebuilt inside so several jobs genuinely run at the same time
+instead of taking turns. From the outside it behaves as before — until you add the new part: wave
+your hand at a sensor and the device responds, without being touched.
+
+**The moment it works:** you silence the alarm with a hand wave. Then you show how few files you
+had to change to add that — which is the whole point of the rebuild.
+
 ## Objective
 Refactor a week of single-loop code into production structure. By the end you can:
 - **Create tasks deliberately** — `xTaskCreatePinnedToCore` with a justified stack size (bytes on ESP32), priority and core.

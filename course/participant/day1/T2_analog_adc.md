@@ -1,6 +1,14 @@
 # T2 · Analog Sensing & ADC
 **Day 1 · ~2 hours · Participant guide**
 
+## What you'll build
+**In plain words:** a dimmer. You turn a knob and the light responds immediately and smoothly, with
+no flicker or jumping. At the same time, a line on your computer screen tracks the knob position.
+
+**The moment it works:** turn the knob slowly from one end to the other. The light glides, and the
+trace on screen is a clean line rather than a fuzzy band — the raw signal is noisy, and you made it
+steady.
+
 ## Objective
 Same objective for all; different code is fine. By the end you can:
 - **Read analog correctly on the ESP32** — 12-bit (0–4095), attenuation, and the non-linearity near the rails.

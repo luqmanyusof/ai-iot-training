@@ -1,6 +1,14 @@
 # T1 · Prompt-Driven GPIO & Digital I/O
 **Day 1 · ~2 hours · Participant guide**
 
+## What you'll build
+**In plain words:** a small arming panel. Press the button once — it beeps, and the light changes
+colour. Press again and it moves to the next colour, cycling through three states the way an alarm
+panel goes from off, to armed, to alarming.
+
+**The moment it works:** press the button as fast as you can. One press, one beep, every single
+time — no missed presses, no accidental doubles.
+
 ## Objective
 Everyone reaches the same objective; your code will differ because your prompts differ — that's expected. By the end you can:
 - **Prompt with the skeleton** — platform + framework + exact pins + behaviour + constraints + library + output format — instead of vague asks.

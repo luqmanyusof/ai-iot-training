@@ -163,7 +163,7 @@ trivial and confirm it runs.
 
 **Step 1 — Copy `project_starter.json` in, paste the kickoff prompt.** The agent adopts a
 senior-engineer role and interviews you: problem, behaviour, hardware, **datasheets**, interfaces,
-constraints, failure modes, scope, acceptance.
+constraints, **safety**, failure modes, scope, acceptance.
 
 **Step 2 — Attach the datasheet when asked. This gate is mandatory.** The starter forbids assuming
 any pin, address, voltage, direction or timing. Spec cards are in `hardware/modules/`.
@@ -171,7 +171,9 @@ any pin, address, voltage, direction or timing. Spec cards are in `hardware/modu
 **Step 3 — Approve `REQUIREMENTS.md` + `PHASES.md`.** Read them. Correct them. **Nothing is coded
 until you approve.** §4 (hard constraints) and §10 (watch-the-AI) are the sections that matter.
 
-**Step 4 — Build one phase at a time.** Never "build everything."
+**Step 4 — Build one phase at a time.** Never "build everything." **Every phase ends with a physical
+test on the real device** — an LED, a beep, a movement, a number on the serial monitor. "It compiles"
+is not a test.
 
 **Step 5 — Verify each phase against the datasheet.** **This is where your best catches come
 from.** Compile ≠ correct.

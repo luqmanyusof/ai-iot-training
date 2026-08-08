@@ -10,18 +10,18 @@ crosses that limit, the light turns red and a buzzer sounds.
 straight away, and the screen carries on updating the whole time instead of freezing.
 
 ## Objective
-The Day-1 integration: three inputs/outputs you now understand, one non-blocking device. By the end you can:
+Three parts, one non-blocking device. By the end you can:
 - **Drive an I²C bus** — scan it, find your device's address, and prove the wiring before writing driver code.
 - **Read a 1-wire digital sensor** — DHT11 is a slow (~1 Hz) digital-pin protocol, *not* I²C; catching the AI on this is part of the topic.
 - **Run three jobs on independent `millis()` timers** — sensor, display, logic — with nothing freezing anything else.
-- **Reuse your own work** — T1's state machine and T2's filtered knob slot straight in.
-- **Ship the Day-1 deliverable** — the known-good local device that Day 2 puts online.
+- **Compose several parts into one device** — a filtered analog read, a slow sensor and a display, all sharing one loop without fighting.
+- **Prove it locally first** — a device that is fully trustworthy on the bench before any network is anywhere near it.
 
 ## Knowledge you'll learn first (in this order)
 1. **I²C in one minute** — SDA/SCL, device addresses, why many devices share two wires; run an **I²C scanner**.
 2. **The DHT 1-wire protocol** — DHT11 is a single digital pin (not I²C), and it's **slow** (~1 Hz).
 3. **Non-blocking multitasking** — running sensor + display + logic on independent `millis()` timers.
-4. **Reusing a state machine** — the OK / WARN / ALARM pattern from T1.
+4. **A small state machine** — the OK / WARN / ALARM pattern, and why thresholds need hysteresis.
 
 ## Hardware this topic
 | Role | Part | Interface | Where |
@@ -49,13 +49,13 @@ Build a Smart Comfort Monitor where:
 | Users *(opt.)* | Room occupants / facilities; indoor room. |
 | Behaviour | Read DHT11 every 2 s → render OLED; knob sets threshold; reading vs threshold → OK/WARN/ALARM → NeoPixel + buzzer. |
 | Hardware | ROBO ESP32 + DHT11 + OLED SSD1315 + Rotary Angle; onboard buzzer + NeoPixel. |
-| Documents | Attach `hardware/modules/Grove-TemperatureAndHumidity_Sensor-DHT11.md` + `hardware/modules/Grove-OLED-Display-0.96-SSD1315.md`; rotary + board same as T2. |
+| Documents | Attach `hardware/modules/Grove-TemperatureAndHumidity_Sensor-DHT11.md`, `hardware/modules/Grove-OLED-Display-0.96-SSD1315.md`, `hardware/modules/Grove-Rotary_Angle_Sensor.md` and the board datasheet. |
 | Interfaces | DHT11 = **digital 1-wire** on any digital port; OLED = I²C `0x3C` on D21/D22 (SSD1306-compatible driver); rotary = ADC1. |
-| Connectivity | None — deliberately local; Day 2 puts this exact device online. |
+| Connectivity | None — deliberately local. Everything must be trustworthy on the bench first. |
 | Constraints | DHT11 is NOT I²C (`0x38` is the DHT20 — a different part); poll no faster than 1–2 s; independent `millis()` timers; no `delay()` anywhere. |
 | Safety | **Low risk — sensing and indication only.** First build where a wrong reading has a consequence, but a stuck alarm is a nuisance, not a hazard. Boot state: quiet and OK until the first *valid* sensor reading arrives — never alarm on startup garbage. |
 | Failure modes | NaN/failed DHT read → keep last good + flag it; display keeps refreshing regardless. |
-| Reuse *(opt.)* | T2 analog-read + moving-average templates; T1 state-machine pattern; prior REQUIREMENTS. |
+| Reuse *(opt.)* | Any prompt templates you already have that fit — an analog-read or moving-average template, or a state-machine pattern. If you have none yet, this project starts the library. |
 | Out of scope | No network, no cloud, no logging. |
 | Acceptance | Live values update; threshold visible and knob-driven; alarm fires within one refresh of crossing; zero `delay()`; display never freezes. |
 
@@ -64,7 +64,7 @@ Build a Smart Comfort Monitor where:
 - **Stage 1 — OLED hello (20 min):** prompt to init the SSD1315 (SSD1306-compatible) and print two text lines.
 - **Stage 2 — DHT11 read (20 min):** prompt to read DHT11 every 2 s on a digital pin; print to serial.
 - **Stage 3 — Render (20 min):** show `Temp: xx.x C` and `Humidity: xx %` on the OLED, refreshed non-blocking.
-- **Stage 4 — Threshold (20 min):** bring in the Rotary (from T2) to set a threshold; display it.
+- **Stage 4 — Threshold (20 min):** add the Rotary knob to set a threshold; filter it and display it.
 - **Stage 5 — Comfort logic (25 min):** compare reading to threshold → OK/WARN/ALARM → NeoPixel colour + buzzer, all in one non-blocking loop.
 
 ## Catch the AI

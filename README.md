@@ -45,7 +45,7 @@ catch it when it is confidently wrong.
 - **9 topics, ~2 hours each, 3 per day.** Each topic is one complete build.
 - **Everyone reaches the same objective; everyone's code differs** — because everyone's prompts
   differ. That is expected and it is the point.
-- **One new PlatformIO project per topic.** The device grows across the week.
+- **One new PlatformIO project per topic**, each standing on its own.
 
 **What you should walk away with**
 

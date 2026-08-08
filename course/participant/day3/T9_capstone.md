@@ -22,21 +22,21 @@ today you decide **what to build with them** and defend it. By the end you can:
 - **Defend a build you didn't hand-write** — architecture, prompt library, and your caught-AI stories with proof.
 
 ## What you have to work with
-Everything is already proven from an earlier topic. Nothing here is new.
+The full kit is available. Pick what your project actually needs — nothing more.
 
-| | Part | From | Notes |
-|---|---|---|---|
-| **Inputs** | Rotary Angle | T2 | analog, **ADC1 (D32/D33)** |
-| | Buttons ×2 | T1 | **D34/D35, input-only** |
-| | DHT11 | T3 | digital 1-wire, ~1 Hz |
-| | Gesture PAJ7660 | T8 | I²C `0x73`, **takes Grove Port 2** |
-| **Outputs** | NeoPixel | T1 | D15 |
-| | Buzzer | T1 | D23 |
-| | TS90A servo | T7 | PWM, servo header, **ESP32Servo** |
-| | OLED SSD1315 | T3 | I²C `0x3C` — **only if you skip the gesture sensor** |
-| **Comms** | WiFi · HTTP/JSON · MQTT → ThingsBoard | T4–T6 | telemetry up, RPC down |
-| | RS485 | T7 | two-node bus, framed + checksummed |
-| **Structure** | FreeRTOS tasks, queues, I²C mutex | T8 | |
+| | Part | Notes |
+|---|---|---|
+| **Inputs** | Rotary Angle | analog, **ADC1 (D32/D33)** |
+| | Buttons ×2 | **D34/D35, input-only** |
+| | DHT11 | digital 1-wire, ~1 Hz |
+| | Gesture PAJ7660 | I²C `0x73`, **takes Grove Port 2** |
+| **Outputs** | NeoPixel | D15 |
+| | Buzzer | D23 |
+| | TS90A servo | PWM, servo header, **ESP32Servo** |
+| | OLED SSD1315 | I²C `0x3C` — **only if you skip the gesture sensor** |
+| **Comms** | WiFi · HTTP/JSON · MQTT → ThingsBoard | telemetry up, RPC down |
+| | RS485 | two-node bus, framed + checksummed |
+| **Structure** | FreeRTOS tasks, queues, I²C mutex | |
 
 > ⚠ **One I²C port.** The board has a single I²C Grove port (Port 2). **Gesture `0x73` or OLED `0x3C` —
 > pick one.** If you choose the gesture sensor, your device is headless and the ThingsBoard dashboard
@@ -101,7 +101,7 @@ Agree it with the trainer in Stage 0 before you build.
 - **Every external input validated** — sensor reads, RPC payloads, RS485 frames. Out-of-range actuator commands are **rejected and logged**, not silently clamped.
 - **Defined fail-safe** per failure: sensor dead, WiFi down, broker down, actuator jammed.
 - **No secrets in source**, the boot banner, or git history. Namespaced topics with device identity.
-- **FreeRTOS structure from T8** — tasks, queues, I²C mutex, measured stacks.
+- **FreeRTOS structure** — tasks, queues, I²C mutex, measured stacks.
 - **ESP32Servo**, non-blocking motion. **Knob on ADC1.** No `delay()`.
 
 > **How you capture this:** create a **new PlatformIO project** (`framework/START_PROMPT.md` §0), copy
@@ -115,7 +115,7 @@ Agree it with the trainer in Stage 0 before you build.
 | Problem | *(your chosen project, in one sentence)* |
 | Users *(opt.)* | Who operates it locally, and who watches the dashboard. |
 | Behaviour | The control loop, the override paths, and which source wins. |
-| Hardware | Only parts already proven in T1–T8 — name them and the topic each came from. |
+| Hardware | Only what your project needs from the kit — name each part. |
 | Documents | Prior `REQUIREMENTS.md` files cover everything. **No new datasheets this topic.** |
 | Interfaces | One I²C device only (gesture `0x73` **or** OLED `0x3C`); servo on the servo header; knob on ADC1. |
 | Connectivity | WiFi + MQTT/ThingsBoard: telemetry up, validated RPC down. RS485 only for project 4. |
@@ -144,10 +144,10 @@ Ten minutes, in this order:
 ## Catch the AI
 - ⚠ **Plaintext credentials.** Ask for a "complete IoT firmware" and it puts SSID, password and token straight into `main.cpp` — after a week of you moving them out. Check the boot banner too.
 - ⚠ **Flat topics / no device identity** — a payload any board could have published.
-- ⚠ **It will re-add the OLED.** Every topic up to T8 had one, and it will write display code for a device that isn't on your bus. One I²C port — you chose.
+- ⚠ **It will add an OLED you did not ask for.** Display code is the default shape of an example, and it will write it for a device that isn't on your bus. One I²C port — you chose which device has it.
 - ⚠ **Trusting the cloud command.** An out-of-range RPC driving the servo to a physical limit. Validate, reject, log — do not silently clamp.
 - ⚠ **No fail-safe state.** Ask what the actuator should do when the sensor stops responding. It usually has no answer; you must.
-- ⚠ **It will happily rebuild everything from scratch** rather than reuse your structure. Point it at your T8 project and make it extend, not restart.
+- ⚠ **It will happily restart from scratch** rather than extend what you already have. If you are building on existing code, point it there and tell it to extend, not rewrite.
 - ⚠ **Stock `Servo.h`** — still wrong, still recommended.
 
 ## Done when
@@ -173,4 +173,4 @@ explain — and the three that matter are the ones you take back to work.
 
 ## Save to your prompt library
 - `architecture-review` template · `security-audit` template · `validate-external-input` template — plus
-  a final tidy of every template from the week into something you'd hand a colleague on Monday.
+  a final tidy of your whole template library into something you'd hand a colleague on Monday.

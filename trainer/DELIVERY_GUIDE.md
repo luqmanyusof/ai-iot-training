@@ -11,7 +11,7 @@ carries the full version in its *Catch the AI* section.
 | T1 | `pinMode(34, INPUT_PULLUP)` on input-only pins |
 | T2 | Analog on **ADC2**; vendor example using 5 V ref and `/1023` |
 | T3 | DHT11 read as I²C / `0x38`; blocking `delay(2000)` |
-| T4 | Writes **station mode** for an access-point requirement; polls for a DHCP address on the board that *is* the DHCP server; forgets `handleClient()` |
+| T4 | Writes **station mode** for an access-point requirement; polls for a DHCP address on the board that *is* the DHCP server; forgets `handleClient()`; invents the gesture I²C address |
 | T5 | Blocking `while(WiFi.status()...)`; fragile JSON parse — no status check, no `DeserializationError` |
 | T6 | ThingsBoard auth — token belongs in the **username**; fails silently |
 | T7 | Treats RS485 as plain UART; "add a delay" offered for bus contention |

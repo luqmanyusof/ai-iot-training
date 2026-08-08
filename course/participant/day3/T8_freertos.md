@@ -17,7 +17,7 @@ Refactor a week of single-loop code into production structure. By the end you ca
 - **Protect shared hardware** — a mutex on the I²C bus, having seen the corruption without it.
 - **Diagnose stack overflow** — the failure that masquerades as a faulty board; `uxTaskGetStackHighWaterMark` is the instrument.
 - **Respect the cores** — WiFi lives on Core 0; starve it and your "network problem" is actually scheduling.
-- **Prove the payoff** — add a brand-new sensor to a well-structured system and watch how cheap it is.
+- **Prove the payoff** — bolt an event-driven input onto a well-structured system and watch how little else has to change.
 
 ## Knowledge you'll learn first (in this order)
 1. **You've been using FreeRTOS all week** — `loop()` runs inside a task the Arduino core created for you.
@@ -34,7 +34,7 @@ Refactor a week of single-loop code into production structure. By the end you ca
 | Role | Part | Where |
 |---|---|---|
 | Carrier + WiFi | ROBO ESP32 | — |
-| **Gesture (NEW this topic)** | **Grove Smart IR Gesture PAJ7660** | I²C **`0x73` — verify by scan**, Grove Port 2 (D21/D22) |
+| Event input | **Grove Smart IR Gesture PAJ7660** | I²C **`0x73` — verify by scan**, Grove Port 2 (D21/D22) |
 | ~~Display~~ | ~~OLED~~ — **not used here**; the gesture sensor takes the single I²C port, so the device is headless and reports to its dashboard. |
 | Environment | Crowtail DHT11 | digital 1-wire | **Grove Port 3 (D26 / D25)** |
 | Threshold knob | Rotary Angle | ADC1 (D32/D33) |
@@ -60,7 +60,7 @@ Build a **connected room monitor structured as concurrent tasks**, where:
 ### Starter interview — suggested answers (T8)
 | Area | Your answer |
 |---|---|
-| Problem | A connected room monitor built as FreeRTOS tasks rather than one loop, with a gesture input added to show how cheaply the structure absorbs new hardware. |
+| Problem | A connected room monitor built as FreeRTOS tasks rather than one loop, with an event-driven gesture input alongside the periodic ones to show what the structure buys you. |
 | Users *(opt.)* | Same device; it is heading into a product, so structure now matters. |
 | Behaviour | Read the sensor, publish telemetry, alarm on threshold, and accept a swipe that silences the alarm or steps the threshold — all concurrently. Internally: sensor task → queue → network + control tasks; gesture task event-driven; alarm task at highest relevant priority; diagnostics print stack high-water marks + heap. |
 | Hardware | ROBO ESP32 (onboard WiFi) + DHT11 + Rotary Angle + **Gesture PAJ7660** on the single I²C port; onboard buzzer and NeoPixel. No OLED. |
@@ -79,7 +79,7 @@ Build a **connected room monitor structured as concurrent tasks**, where:
 - **Stage 1 — Your first task (20 min):** prompt the AI to move the sensor read into its own task with `xTaskCreatePinnedToCore`. Ask it to justify the stack size and the core it chose — do not accept "1024" without a reason. Save a **freertos-task** template.
 - **Stage 2 — Split it up (25 min):** move network, alarm/control and diagnostics into their own tasks at sensible priorities. `loop()` should end up nearly empty.
 - **Stage 3 — Queues, not globals (25 min):** replace shared variables with a queue carrying a reading struct. Discuss what happens when the queue fills and who is allowed to block.
-- **Stage 4 — New hardware, and the race it creates (25 min):** swap the OLED off Port 2 and plug in the **gesture sensor**. Scan the bus, confirm **`0x73`**, then add a **gesture task** that waits for input and posts events to a queue — a swipe silences the alarm. Notice how little of your existing code changes: *that* is the payoff of Stage 2. Now two tasks touch `Wire`, so **guard it with a mutex** — then remove the mutex deliberately and watch reads garble and gestures go missing. That race is real, and you just built it.
+- **Stage 4 — An event-driven task, and the race it creates (25 min):** swap the OLED off Port 2 and plug in the **gesture sensor**. Scan the bus, confirm **`0x73`**, then add a **gesture task** that *blocks waiting for input* rather than polling on a timer like the others — a swipe silences the alarm. Notice how little of the existing code changes to accommodate a task with a completely different rhythm: *that* is the payoff of Stage 2. Now two tasks touch `Wire`, so **guard it with a mutex** — then remove the mutex deliberately and watch reads garble and gestures go missing. That race is real, and you just built it.
 - **Stage 5 — Stack forensics (15 min):** print every task's high-water mark. Then **shrink one task's stack until it crashes** and read the panic output. Size all stacks from measurement, not guesswork, and soak-test.
 
 ## Catch the AI
@@ -102,7 +102,7 @@ Build a **connected room monitor structured as concurrent tasks**, where:
 - [ ] You have **deliberately caused and read** a stack-overflow panic.
 - [ ] `loop()` is essentially empty; no `delay()` inside tasks.
 - [ ] 15-minute soak with WiFi/MQTT up: no resets, no watchdog.
-- [ ] You can state **how few files changed** to add the gesture — the payoff of the structure.
+- [ ] You can state **how few files changed** to add an input with a completely different timing pattern — the payoff of the structure.
 
 ## Save to your prompt library
 - `freertos-task` template · `queue-between-tasks` template · `mutex-shared-bus` template · `event-driven-input-task` template · `stack-sizing-checklist` (the high-water-mark habit is the one you'll reuse most).

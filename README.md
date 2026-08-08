@@ -205,7 +205,7 @@ Hosts a **30-pin NodeMCU ESP32 DevKit V1**.
 
 | Port | Module |
 |---|---|
-| **I²C Grove Port 2 (D21/D22)** | **OLED (T3–T7)** → **Gesture (T8–T9)** — one port, swapped once |
+| **I²C Grove Port 2 (D21/D22)** | **OLED** (T3, T6, T7) ⇄ **Gesture** (T4, T5, T8, T9) — one port, swapped per project |
 | Maker / QWIIC (D21/D22) | *(free — same pins, but a QWIIC connector)* |
 | **UART (D16/D17)** | **Grove RS485** |
 | **Grove Port 3 (D26/D25)** | Crowtail DHT11 |
@@ -223,9 +223,10 @@ Hosts a **30-pin NodeMCU ESP32 DevKit V1**.
 | **TS90A Micro Servo** | PWM | **not Grove** — 3-pin lead; 3–6 V; **ESP32Servo**, never `Servo.h` |
 | **Gesture PAJ7660** | I²C `0x73` *(verify by scan)* | **5–40 cm** range, plain background |
 
-> **Only one I²C Grove port exists.** The OLED owns it for T3–T7; the gesture sensor takes it from
-> T8 and the device runs headless — your T6 dashboard becomes the display. They are never needed at
-> the same time, so no I²C hub or QWIIC conversion cable is required.
+> **Only one I²C Grove port exists.** The OLED serves T3, T6 and T7; the gesture sensor takes it for
+> T4, T5, T8 and T9, where the device runs headless and reports over serial, the NeoPixel or its
+> dashboard. They are never needed at the same time, so no I²C hub or QWIIC conversion cable is
+> required — just a swap between projects.
 
 ### ⚠ The seven constraints that break builds
 
@@ -284,17 +285,17 @@ Dependency-ordered — nothing is used before it is taught.
 | 1 | **T1** GPIO & Digital I/O | prompt skeleton, pins, debounce, interrupt | onboard buttons, buzzer, NeoPixel |
 | 1 | **T2** Analog & ADC | ADC1-vs-WiFi, filtering, mapping | Rotary Angle |
 | 1 | **T3** Comfort Monitor | I²C bus, DHT 1-wire, non-blocking timers | DHT11, OLED, Rotary |
-| 2 | **T4** WiFi AP + HTTP server | access-point mode, serving GET/POST, untrusted requests | (+ onboard radio) · *pairs* |
-| 2 | **T5** WiFi client + HTTP client | station mode, consuming GET/POST, defensive parse | (+ partner's server) · *pairs* |
+| 2 | **T4** WiFi AP + HTTP server | access-point mode, serving GET/POST, untrusted requests | Gesture PAJ7660 · *pairs* |
+| 2 | **T5** WiFi client + HTTP client | station mode, consuming GET/POST, defensive parse | Gesture PAJ7660 · *pairs* |
 | 2 | **T6** MQTT → ThingsBoard | pub/sub, topics, dashboard, RPC | (+ broker/cloud) |
 | 3 | **T7** UART & RS485 | half-duplex bus, framing, addressing, fail-safe | Grove RS485 + TS90A servo |
-| 3 | **T8** FreeRTOS | tasks, queues, mutex, stack forensics | **+ Gesture PAJ7660** |
+| 3 | **T8** FreeRTOS | tasks, queues, mutex, stack forensics | Gesture PAJ7660 |
 | 3 | **T9** Capstone | scoping, integration, security | mini project — no new hardware |
 
 | Day | You end the day with |
 |---|---|
 | **1** | A local monitor: OLED + DHT11 + knob threshold + alarm |
-| **2** | A board serving its own API, a board consuming one, and both on a cloud dashboard |
+| **2** | A board serving its own API, a board consuming one — wave at yours, your partner's light answers — and both on a cloud dashboard |
 | **3** | Your own scoped mini project — demoed, broken on purpose, and defended |
 
 **Knowledge chain:**

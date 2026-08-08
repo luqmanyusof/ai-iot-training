@@ -19,7 +19,7 @@ Same objective for all; different code is fine. By the end you can:
 
 ## Knowledge you'll learn first (in this order)
 1. **The ESP32 ADC** — 12-bit (0–4095), input attenuation, and why it's **non-linear**.
-2. **ADC1 vs ADC2** — and the trap: **ADC2 stops working once Wi-Fi is on** (you'll rely on this from Day 2).
+2. **ADC1 vs ADC2** — and the trap: **ADC2 stops working once Wi-Fi is on**, which is why the choice matters even in a build with no radio.
 3. **Moving-average filtering** — turning a jittery reading into a stable one.
 4. **Mapping / calibration** — raw counts → a meaningful 0–100 range.
 
@@ -37,24 +37,24 @@ Build a device where:
 - The reading is **stable** — no visible jitter after filtering.
 - The knob is wired and read on an **ADC1 pin (D32/D33)** — non-negotiable.
 
-> **How you capture this:** new PlatformIO project (created by you, toolchain proven — `framework/START_PROMPT.md` §0), copy `framework/project_starter.json` in, kick off with `framework/START_PROMPT.md`, run the
-> interview ("same as T1" covers the board). Approve `REQUIREMENTS.md` + `PHASES.md` before coding.
+> **How you capture this:** new PlatformIO project (created by you, toolchain proven — `framework/START_PROMPT.md` §0), copy `framework/project_starter.json` in, kick off with `framework/START_PROMPT.md`, and
+> run the interview. Approve `REQUIREMENTS.md` + `PHASES.md` before coding.
 
 ### Starter interview — suggested answers (T2)
 | Area | Your answer |
 |---|---|
 | Problem | A knob that reads as a stable 0–100 value and drives the NeoPixel — the analog input layer for later topics. |
-| Users *(opt.)* | Same bench context as T1 — skip. |
+| Users *(opt.)* | Bench build, indoors, USB-powered — skip if that is obvious from the problem. |
 | Behaviour | Turn knob → raw ADC filtered (moving average, window ~10) → mapped 0–100 → plotter + NeoPixel follow smoothly. |
 | Hardware | ROBO ESP32 + Grove Rotary Angle; onboard NeoPixel (D15). |
-| Documents | Attach `hardware/modules/Grove-Rotary_Angle_Sensor.md`; board datasheet same as T1. |
+| Documents | Attach `hardware/modules/Grove-Rotary_Angle_Sensor.md` and the board datasheet. |
 | Interfaces | Rotary = analog on **ADC1 (D32/D33) only**; NeoPixel = D15. |
 | Connectivity | None. |
-| Constraints | ADC1 only — ADC2 dies when WiFi turns on (Day 2 depends on this); 12-bit 0–4095; non-blocking loop. |
+| Constraints | ADC1 only — ADC2 stops working the moment a radio is enabled; 12-bit 0–4095; non-blocking loop. |
 | Safety | **Low risk — sensing and indication only; nothing moves.** The NeoPixel at full brightness is uncomfortable to look at directly — keep it dim while you are bench-testing at close range. |
 | Failure modes | Raw jitter must never reach the output — filter first; note the flat zones near 0/4095. |
-| Reuse *(opt.)* | T1 REQUIREMENTS (board facts) + digital-output template. |
-| Out of scope | No network, no display, no thresholds (T3 adds those). |
+| Reuse *(opt.)* | Any prompt templates you already have that fit — a digital-output template, or a board spec you have already written up. If you have none yet, this project starts the library. |
+| Out of scope | No network, no display, no thresholds — the knob and the light only. |
 | Acceptance | Reading on ADC1; smoothed trace visibly cleaner than raw; stable 0–100; NeoPixel follows without steps or flicker. |
 
 ## Flow (stages)
@@ -64,7 +64,7 @@ Build a device where:
 - **Stage 4 — Drive output (25 min):** use the 0–100 value to set NeoPixel **brightness or hue** live as you turn the knob.
 
 ## Catch the AI
-- ⚠ Check which pin the AI chose. If it picked an **ADC2** pin (D25/D26), it "works" today but will read **garbage the moment Wi-Fi turns on** in Day 2. Force it onto **ADC1 (D32/D33)** now. Log it.
+- ⚠ Check which pin the AI chose. If it picked an **ADC2** pin (D25/D26), it "works" on the bench but reads **garbage the moment Wi-Fi is enabled** — a fault that surfaces long after this code was written. Force it onto **ADC1 (D32/D33)**. Log it.
 
 ## Done when (shared objective)
 - [ ] Knob is read on an **ADC1** pin.

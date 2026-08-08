@@ -60,8 +60,9 @@ Build a **cross-control link** where:
 
 > **How you capture this:** create a **new PlatformIO project** (you create it, toolchain proven first —
 > `framework/START_PROMPT.md` §0), copy `framework/project_starter.json` into it, and kick off with
-> `framework/START_PROMPT.md`. Answer "same as \<earlier topic\>" for anything unchanged; the new
-> datasheets are `hardware/modules/Grove-RS485.md` and `hardware/modules/TS90A-Micro-Servo.md`.
+> `framework/START_PROMPT.md`. The datasheets you will need are `hardware/modules/Grove-RS485.md`,
+> `hardware/modules/TS90A-Micro-Servo.md`, `hardware/modules/Grove-Rotary_Angle_Sensor.md` and the
+> board datasheet.
 
 ### Starter interview — suggested answers (T7)
 | Area | Your answer |
@@ -76,7 +77,7 @@ Build a **cross-control link** where:
 | Constraints | **ESP32Servo**, not `Servo.h`; non-blocking servo motion; only one node may drive the bus at a time; `flush()` before switching to receive; frames addressed + checksummed; knob stays on ADC1. |
 | Safety | **First moving actuator — treat this seriously.** The servo arm can pinch: keep fingers and cables clear on first power-up, start from mid-range and move slowly. Enforce travel limits in software (500–2500 µs); never drive into a mechanical end-stop — a stalled servo draws heavy current continuously and can brown-out the board. **Safe resting state: park at a defined angle on boot, and on ≥3 missed frames or bus loss.** A corrupt frame must never reach the servo. |
 | Failure modes | Bad checksum → reject + count; wrong address → ignore; ≥3 missed frames → `STALE` + servo to fail-safe position; local knob/display unaffected. |
-| Reuse *(opt.)* | T2 analog-read + moving-average templates; T3 OLED + non-blocking timers; T5's defensive-parse discipline applied to bytes. |
+| Reuse *(opt.)* | Any prompt templates you already have that fit — an analog-read or moving-average template, a display template, or any defensive-parsing pattern you can point at bytes. If you have none yet, this project starts the library. |
 | Out of scope | No WiFi/MQTT, no Modbus library (write your own frame), no more than 2 nodes, no encryption. |
 | Acceptance | Partner's servo follows my knob < 200 ms; both directions simultaneously; corrupt frame rejected with no servo movement; unplugging a wire drives fail-safe + `STALE`; no blocking calls. |
 

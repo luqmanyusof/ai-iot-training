@@ -2,9 +2,10 @@
 **Day 3 · ~2 hours · Participant guide**
 
 ## What you'll build
-**In plain words:** the same device, rebuilt inside so several jobs genuinely run at the same time
-instead of taking turns. From the outside it behaves as before — until you add the new part: wave
-your hand at a sensor and the device responds, without being touched.
+**In plain words:** a connected sensor device built so that several jobs genuinely run at the same
+time instead of taking turns — reading, publishing, alarming and watching for input, all at once.
+Then you add the part that proves the structure was worth it: wave your hand at a sensor and the
+device responds, without being touched.
 
 **The moment it works:** you silence the alarm with a hand wave. Then you show how few files you
 had to change to add that — which is the whole point of the rebuild.
@@ -34,46 +35,47 @@ Refactor a week of single-loop code into production structure. By the end you ca
 |---|---|---|
 | Carrier + WiFi | ROBO ESP32 | — |
 | **Gesture (NEW this topic)** | **Grove Smart IR Gesture PAJ7660** | I²C **`0x73` — verify by scan**, Grove Port 2 (D21/D22) |
-| ~~Display~~ | ~~OLED~~ — **comes off now**; the gesture sensor takes the single I²C port. Your T6 dashboard is the display. |
+| ~~Display~~ | ~~OLED~~ — **not used here**; the gesture sensor takes the single I²C port, so the device is headless and reports to its dashboard. |
 | Environment | Crowtail DHT11 | digital 1-wire |
 | Threshold knob | Rotary Angle | ADC1 (D32/D33) |
 | Alarm | Buzzer + NeoPixel | D23 / D15 |
-| Optional | RS485 bus + servo (from T7) | UART D16/D17 · servo header |
+| Optional | RS485 bus + servo | UART D16/D17 · servo header |
 
 ## Your requirement
-Rebuild your T6 monitor so that:
+Build a **connected room monitor structured as concurrent tasks**, where:
 - It runs as **five or more tasks** — sensor, gesture, network/publish, alarm/control, diagnostics.
 - Data crosses tasks via **queues**; no unprotected shared globals.
 - The I²C bus is **mutex-protected** — you will *create* that contention yourself when the gesture task lands.
 - A **new input works**: a swipe silences the alarm (or steps the threshold) — added *after* the task structure exists, to show how cheap that is.
-- The device is **headless** — local state on NeoPixel + buzzer, full state on your T6 dashboard.
+- The device is **headless** — local state on NeoPixel + buzzer, full state on its cloud dashboard.
 - Every task reports its **stack high-water mark**; sizes are justified by measurement.
 - It survives a **15-minute soak** with WiFi/MQTT active — zero resets, zero watchdog trips.
 
 > **How you capture this:** create a **new PlatformIO project** (`esp32dev`, and prove the toolchain uploads — see `framework/START_PROMPT.md` §0), copy `framework/project_starter.json`
-> into it, and paste the kickoff prompt from `framework/START_PROMPT.md` into Devin. This is a refactor — most answers are "same as T6" (attach that
-> project's `REQUIREMENTS.md`); the new material is the task/queue/stack constraints, and the board
-> datasheet in `hardware/` covers the dual-core layout. Approve both files before any code.
+> into it, and paste the kickoff prompt from `framework/START_PROMPT.md` into Devin. Spend the
+> interview on the task/queue/stack constraints — that is what makes this build different from a
+> single-loop one. The board datasheet in `hardware/` covers the dual-core layout. Approve both
+> files before any code.
 
 ### Starter interview — suggested answers (T8)
 | Area | Your answer |
 |---|---|
-| Problem | The T6 monitor refactored into FreeRTOS tasks, then extended with a gesture input to prove the structure pays off. |
+| Problem | A connected room monitor built as FreeRTOS tasks rather than one loop, with a gesture input added to show how cheaply the structure absorbs new hardware. |
 | Users *(opt.)* | Same device; it is heading into a product, so structure now matters. |
-| Behaviour | T6 behaviour, headless, **plus** a swipe that silences the alarm / steps the threshold. Internally: sensor task → queue → network + control tasks; gesture task event-driven; alarm task highest relevant priority; diagnostics print HWM + heap. |
-| Hardware | Same as T6, **minus the OLED, plus the Gesture PAJ7660** on the single I²C port. |
-| Documents | T6 REQUIREMENTS.md + the board datasheet (dual-core layout) + `hardware/modules/Grove-Gesture_sensor_paj7660.md`. |
+| Behaviour | Read the sensor, publish telemetry, alarm on threshold, and accept a swipe that silences the alarm or steps the threshold — all concurrently. Internally: sensor task → queue → network + control tasks; gesture task event-driven; alarm task at highest relevant priority; diagnostics print stack high-water marks + heap. |
+| Hardware | ROBO ESP32 (onboard WiFi) + DHT11 + Rotary Angle + **Gesture PAJ7660** on the single I²C port; onboard buzzer and NeoPixel. No OLED. |
+| Documents | `hardware/modules/Grove-Gesture_sensor_paj7660.md`, the DHT11 and Rotary spec cards, and the board datasheet (dual-core layout). |
 | Interfaces | Gesture on I²C **`0x73` (verify by scan)**, Grove Port 2; no OLED; I²C is now a resource shared between tasks. |
-| Connectivity | Same as T6. |
+| Connectivity | WiFi + MQTT telemetry to a dashboard; the dashboard is the display. |
 | Constraints | Stacks sized from `uxTaskGetStackHighWaterMark` (argument is **bytes** on ESP32); queues not globals; mutex on `Wire`; `vTaskDelay` only; heavy work off Core 0; `loop()` essentially empty. |
-| Safety | **Everything from T7 still applies, plus a new failure path:** an undersized stack reboots the board *mid-motion*. The servo must therefore reach its safe park position at boot, before any task is allowed to command it. Do not disable the watchdog to silence a symptom — it is the thing that catches a wedged task. |
+| Safety | **If a servo is fitted, it can pinch — keep clear on first power-up, limit travel in software, and park it at a defined angle. New failure path here:** an undersized stack reboots the board *mid-motion*. The servo must therefore reach its safe park position at boot, before any task is allowed to command it. Do not disable the watchdog to silence a symptom — it is the thing that catches a wedged task. |
 | Failure modes | Any reset must be explainable from the panic backtrace; queue-full policy defined; zero watchdog trips in the soak. |
-| Reuse *(opt.)* | T6 REQUIREMENTS wholesale — this is a refactor, not a feature build. |
+| Reuse *(opt.)* | Any prompt templates you already have that fit — non-blocking WiFi, MQTT publish, or sensor-read templates. If you have none yet, this project starts the library. |
 | Out of scope | One new input only — no OTA, no power management, no new cloud features. |
 | Acceptance | ≥5 justified tasks; queue data flow; mutex proven (race seen without it); gesture working and debounced; HWM documented; deliberate overflow caused + read; 15-min clean soak. |
 
 ## Flow (stages)
-- **Stage 0 — Baseline & map (10 min):** flash your working T6 device. On paper, split it into tasks: what runs at what rate, what data crosses between them, what shares hardware.
+- **Stage 0 — Map it on paper (10 min):** before any code, split the device into tasks — what runs at what rate, what data crosses between them, and what hardware is shared. This drawing is what you build against.
 - **Stage 1 — Your first task (20 min):** prompt the AI to move the sensor read into its own task with `xTaskCreatePinnedToCore`. Ask it to justify the stack size and the core it chose — do not accept "1024" without a reason. Save a **freertos-task** template.
 - **Stage 2 — Split it up (25 min):** move network, alarm/control and diagnostics into their own tasks at sensible priorities. `loop()` should end up nearly empty.
 - **Stage 3 — Queues, not globals (25 min):** replace shared variables with a queue carrying a reading struct. Discuss what happens when the queue fills and who is allowed to block.

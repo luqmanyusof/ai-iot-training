@@ -2,7 +2,7 @@
 **Day 2 · ~2 hours · Participant guide**
 
 ## What you'll build
-**In plain words:** your monitor starts talking to a web server. It sends its readings up on a
+**In plain words:** a room monitor that talks to a web server. It sends its readings up on a
 schedule, and asks the server what comfort limit to use. The interesting part is what happens when
 the server misbehaves — an error, a web page instead of data, half an answer, or no reply at all.
 The device notices, ignores the bad answer, falls back to the knob, and says so on screen.
@@ -45,8 +45,8 @@ Extend your monitor so that:
 - Any server failure — unreachable, slow, 500, HTML, truncated JSON — means **fall back to last-good / knob**, visibly.
 - **No network call ever blocks the alarm.**
 
-> **How you capture this:** new PlatformIO project (you create it, toolchain proven first — `framework/START_PROMPT.md` §0), starter in, kick off with `framework/START_PROMPT.md`. "Same as T4" covers the hardware; the
-> new answers are the endpoint contract and the hostile-response behaviour.
+> **How you capture this:** new PlatformIO project (you create it, toolchain proven first — `framework/START_PROMPT.md` §0), starter in, kick off with `framework/START_PROMPT.md`. Spend the interview on the endpoint
+> contract and the hostile-response behaviour — that is what this build turns on.
 
 ### Starter interview — suggested answers (T5)
 | Area | Your answer |
@@ -54,15 +54,15 @@ Extend your monitor so that:
 | Problem | The monitor exchanges data with a flaky REST API — readings up, threshold down — without ever acting on garbage. |
 | Users *(opt.)* | Facilities IT REST API; returns 500s during deploys and an HTML SSO page when sessions expire. |
 | Behaviour | POST telemetry every 5–10 s; GET config; a valid `threshold` overrides the knob; anything invalid → last-good + `LOCAL` badge. |
-| Hardware | Same as T4. |
-| Documents | Same as T4 + the trainer's endpoint URL and JSON schema. |
+| Hardware | ROBO ESP32 (onboard WiFi) + DHT11 + OLED SSD1315 + Rotary Angle; onboard buzzer and NeoPixel. |
+| Documents | The DHT11, OLED and Rotary spec cards + board datasheet, plus the test endpoint URL and its JSON schema. |
 | Interfaces | POST `{"temp":..,"humidity":..,"threshold":..,"state":"..","uptime_s":..}`; GET expects `{"threshold":N}`. |
 | Connectivity | WiFi + HTTP to the trainer's test endpoint. |
 | Constraints | ArduinoJson only (no `String` concatenation); gate every response transport→status→parse→type; `setTimeout(5000)`; `http.end()` on all paths; non-blocking interval. |
 | Safety | **Low risk, but the blast radius grew:** a remote value now influences behaviour. A malformed or out-of-range threshold must never silently disable the alarm — reject it, fall back to the knob, and show `LOCAL` so the operator knows. |
 | Failure modes | 500 / HTML / truncated / silent → no crash, no bad action; last-good + `LOCAL`; retry later; alarm unaffected. |
-| Reuse *(opt.)* | T4 REQUIREMENTS; wifi-nonblocking + secrets-in-nvs templates. |
-| Out of scope | No MQTT (T6), no TLS, no auth flows beyond a static token. |
+| Reuse *(opt.)* | Any prompt templates you already have that fit — a non-blocking WiFi template, or a secrets-in-NVS pattern. If you have none yet, this project starts the library. |
+| Out of scope | No MQTT, no TLS, no auth flows beyond a static token. |
 | Acceptance | Valid POSTs on interval; remote threshold applied + shown; survives all four hostile modes; falls back visibly; alarm never blocked. |
 
 ## Flow (stages)

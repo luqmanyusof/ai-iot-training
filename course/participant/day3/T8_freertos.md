@@ -36,7 +36,7 @@ Refactor a week of single-loop code into production structure. By the end you ca
 | Carrier + WiFi | ROBO ESP32 | — |
 | **Gesture (NEW this topic)** | **Grove Smart IR Gesture PAJ7660** | I²C **`0x73` — verify by scan**, Grove Port 2 (D21/D22) |
 | ~~Display~~ | ~~OLED~~ — **not used here**; the gesture sensor takes the single I²C port, so the device is headless and reports to its dashboard. |
-| Environment | Crowtail DHT11 | digital 1-wire |
+| Environment | Crowtail DHT11 | digital 1-wire | **Grove Port 3 (D26 / D25)** |
 | Threshold knob | Rotary Angle | ADC1 (D32/D33) |
 | Alarm | Buzzer + NeoPixel | D23 / D15 |
 | Optional | RS485 bus + servo | UART D16/D17 · servo header |

@@ -32,7 +32,7 @@ Put a working local monitor online **without breaking any of it**. By the end yo
 |---|---|---|
 | Carrier | ROBO ESP32 (onboard WiFi) | — |
 | Status | OLED SSD1315 | I²C `0x3C`, Grove Port 2 (D21/D22) |
-| Environment | Crowtail DHT11 | digital 1-wire |
+| Environment | Crowtail DHT11 | digital 1-wire | **Grove Port 3 (D26 / D25)** |
 | Threshold knob | Rotary Angle | **ADC1 (D32/D33)** |
 | Alarm | Buzzer + NeoPixel | D23 / D15 |
 
@@ -56,7 +56,7 @@ Build a **network-aware room monitor**, where:
 | Behaviour | Read DHT11 every 2 s → OLED shows temp, humidity, knob threshold, link state and RSSI; alarm on threshold crossing. Connect runs as a background state machine; local behaviour is identical online or offline. |
 | Hardware | ROBO ESP32 (onboard WiFi) + DHT11 + OLED SSD1315 + Rotary Angle; onboard buzzer and NeoPixel. |
 | Documents | Attach the DHT11, OLED and Rotary spec cards from `hardware/modules/`, plus the board datasheet. |
-| Interfaces | DHT11 = digital 1-wire; OLED = I²C `0x3C` on D21/D22; knob = **ADC1 (D32/D33) only** — it must still read correctly with the radio on. |
+| Interfaces | DHT11 = digital 1-wire on **Grove Port 3 (D26 or D25)**; OLED = I²C `0x3C` on D21/D22; knob = **ADC1 (D32/D33) only** — it must still read correctly with the radio on. |
 | Connectivity | WiFi station mode only — no HTTP, no MQTT, no cloud. |
 | Constraints | No blocking connect; backoff 1→2→4 s… capped ~30 s; creds in NVS via `Preferences`; sensor/display timers independent of link state. |
 | Safety | Sensing and indication only, but it runs unattended for long periods. **Must never happen:** alarm behaviour being altered, suppressed or delayed as a side effect of network state. **Safe state on boot:** quiet, OK, local threshold, alarm armed — independent of link status. Connection handling must not block or gate the sensing and alarm path. |

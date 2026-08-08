@@ -59,7 +59,7 @@ Extend your monitor so that:
 | Interfaces | POST `{"temp":..,"humidity":..,"threshold":..,"state":"..","uptime_s":..}`; GET expects `{"threshold":N}`. |
 | Connectivity | WiFi + HTTP to the trainer's test endpoint. |
 | Constraints | ArduinoJson only (no `String` concatenation); gate every response transport→status→parse→type; `setTimeout(5000)`; `http.end()` on all paths; non-blocking interval. |
-| Safety | **Low risk, but the blast radius grew:** a remote value now influences behaviour. A malformed or out-of-range threshold must never silently disable the alarm — reject it, fall back to the knob, and show `LOCAL` so the operator knows. |
+| Safety | Sensing and indication only, but a remote value now influences when the alarm fires. **Must never happen:** an unvalidated or out-of-range remote threshold being applied, or a server failure silently disabling the alarm. Every remote value is range-checked before use; anything invalid is rejected, the local knob value is retained, and the active source is shown as `LOCAL`. |
 | Failure modes | 500 / HTML / truncated / silent → no crash, no bad action; last-good + `LOCAL`; retry later; alarm unaffected. |
 | Reuse *(opt.)* | Any prompt templates you already have that fit — a non-blocking WiFi template, or a secrets-in-NVS pattern. If you have none yet, this project starts the library. |
 | Out of scope | No MQTT, no TLS, no auth flows beyond a static token. |

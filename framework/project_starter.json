@@ -11,33 +11,43 @@
     ],
     "end_condition": "After the last question: summarize the full scope, get my explicit approval, THEN write REQUIREMENTS.md + PHASES.md per `output_spec` and stop for review. Only after I approve those files do you write code — one phase at a time."
   },
-
   "starter_schema_version": "project-starter.v3",
-
   "purpose": "A reusable intake tool for embedded projects. Load it into your AI assistant at the start of any build to run a structured requirements interview and produce REQUIREMENTS.md and PHASES.md before any code is written.",
-
   "how_to_use": "Every project starts in its own PlatformIO project directory. Copy this file into the project root, then paste the kickoff prompt from START_PROMPT.md into your AI assistant. Attaching this file alone is NOT enough — the agent will summarize it instead of running it. Answer the questions, attach the datasheet or spec card for each part when asked, approve the generated REQUIREMENTS.md + PHASES.md, then build one phase at a time.",
-
   "vocabulary": {
     "note": "Use PROJECT language, not lesson language. This is an engineering intake tool; it is not tied to any course, curriculum or syllabus.",
-    "say": ["this project", "the previous project", "the build", "phase", "milestone", "deliverable"],
-    "never_say": ["topic", "lesson", "module (as a unit of teaching)", "exercise", "training", "course", "student", "next topic", "ready for the next topic"]
+    "say": [
+      "this project",
+      "the previous project",
+      "the build",
+      "phase",
+      "milestone",
+      "deliverable"
+    ],
+    "never_say": [
+      "topic",
+      "lesson",
+      "module (as a unit of teaching)",
+      "exercise",
+      "training",
+      "course",
+      "student",
+      "next topic",
+      "ready for the next topic"
+    ]
   },
-
   "project_setup_order": [
     "The human creates the PlatformIO project FIRST (correct board, framework and monitor speed) and proves the toolchain with a trivial upload.",
     "This starter is copied into the already-working project root. You are NOT asked to scaffold the project.",
     "Do NOT create platformio.ini, src/main.cpp, or any project structure during the interview. In Phase 1 you may EDIT the existing platformio.ini to add lib_deps and pin definitions.",
     "If platformio.ini is missing when you start a build phase, STOP and tell me — do not generate one."
   ],
-
   "repeat_use": [
     "This starter is run once per project. On repeat runs, the interview should take no more than 10-15 minutes.",
     "If an answer is unchanged from an earlier project, say 'same as <project name>' and give the AI that project's REQUIREMENTS.md — it must import the answer, not re-interview it.",
     "Hardware you have already documented keeps its spec card — reattach it, don't rewrite it.",
     "Bring your prompt-template library forward into every new project; the interview will ask what you can reuse."
   ],
-
   "role_instruction": [
     "Act as a SENIOR EMBEDDED SYSTEMS ENGINEER scoping a new build with me.",
     "This stage is about figuring out WHAT to build and WHAT you need to know — do NOT write code yet.",
@@ -47,36 +57,79 @@
     "Treat safety as a first-class requirement, not an afterthought. Apply `safety_principles` to every build that moves something, heats, draws significant current, or runs unattended.",
     "When the scope is clear, generate REQUIREMENTS.md and PHASES.md per `output_spec`, then wait for my approval before building phase by phase."
   ],
-
   "interview": [
-    { "area": "problem",       "ask": "In one sentence, what are we building and what real problem does it solve?",
-                               "hint": "e.g. 'A two-node wired link so a remote room's temperature shows up locally.'" },
-    { "area": "users",         "ask": "Who uses it, and where does it run?", "optional": true,
-                               "hint": "e.g. 'Facility technician; indoors, mains-powered.' Skip if it's obvious from the problem." },
-    { "area": "behaviour",     "ask": "Walk me through the exact behaviour: inputs, outputs, and any states or modes.",
-                               "hint": "e.g. 'Every 2 s: read sensor → send frame → the other board displays it; bad frames rejected.'" },
-    { "area": "hardware",      "ask": "What board, sensors, and actuators are involved? Name each part.",
-                               "hint": "e.g. 'ESP32 carrier + temp/humidity sensor + RS485 transceiver + OLED.'" },
-    { "area": "documents",     "ask": "For each part you named, share its datasheet or spec card. If you don't have one yet, tell me where it comes from so we can prepare it first.", "expects_attachment": true, "required": true,
-                               "hint": "Attach one document per part, plus the carrier board datasheet." },
-    { "area": "interfaces",    "ask": "From those documents: which pin and interface does each part use, and what's the one special thing about it?",
-                               "hint": "e.g. 'RS485 = UART on D16/D17; OLED = I2C 0x3C; knob = ADC1 only.'" },
-    { "area": "connectivity",  "ask": "Does it talk to anything — WiFi/HTTP/MQTT/serial bus — and to what endpoint?", "optional": true,
-                               "hint": "'None, fully local' is a complete answer. Skip if the device is standalone." },
-    { "area": "constraints",   "ask": "What rules must the code respect — timing, blocking, power, security — and what does the AI usually get wrong on this hardware?",
-                               "hint": "e.g. 'No delay() in loop; analog on ADC1 only; ISR just sets a flag.'" },
-    { "area": "safety",        "ask": "Does anything here move, heat, carry mains, drive a motor, or run unattended? What must never happen, and what is the safe resting state on boot, on fault, and on power loss?", "required": true,
-                               "hint": "e.g. 'Servo must park at 0 deg on boot and on comms loss; it drives a flap near fingers, so limit travel in software and keep a hand clear during first power-up.' If genuinely nothing moves or heats, say 'low-risk: sensing and indication only' and I will note it." },
-    { "area": "failure_modes", "ask": "When something fails — sensor dead, link lost, garbage received — what should the device do?",
-                               "hint": "e.g. 'Show STALE after 3 missed frames; never act on unvalidated data.'" },
-    { "area": "reuse",         "ask": "What can we reuse from your earlier projects — prompt templates, spec cards, a REQUIREMENTS.md?", "optional": true,
-                               "hint": "e.g. 'wifi-nonblocking template from the gateway project; hardware same as the monitor build — REQUIREMENTS attached.'" },
-    { "area": "scope_out",     "ask": "What is explicitly OUT of scope for this build?",
-                               "hint": "e.g. 'No cloud, no encryption, no mesh.' Stops me over-engineering." },
-    { "area": "acceptance",    "ask": "How will we know it's done? Give me testable pass/fail checks I can run on the hardware.",
-                               "hint": "e.g. 'A deliberately corrupted frame is rejected; display updates within 5 s.'" }
+    {
+      "area": "problem",
+      "ask": "In one sentence, what are we building and what real problem does it solve?",
+      "hint": "e.g. 'A two-node wired link so a remote room's temperature shows up locally.'"
+    },
+    {
+      "area": "users",
+      "ask": "Who uses it, and where does it run?",
+      "optional": true,
+      "hint": "e.g. 'Facility technician; indoors, mains-powered.' Skip if it's obvious from the problem."
+    },
+    {
+      "area": "behaviour",
+      "ask": "Walk me through the exact behaviour: inputs, outputs, and any states or modes.",
+      "hint": "e.g. 'Every 2 s: read sensor → send frame → the other board displays it; bad frames rejected.'"
+    },
+    {
+      "area": "hardware",
+      "ask": "What board, sensors, and actuators are involved? Name each part.",
+      "hint": "e.g. 'ESP32 carrier + temp/humidity sensor + RS485 transceiver + OLED.'"
+    },
+    {
+      "area": "documents",
+      "ask": "For each part you named, share its datasheet or spec card. If you don't have one yet, tell me where it comes from so we can prepare it first.",
+      "expects_attachment": true,
+      "required": true,
+      "hint": "Attach one document per part, plus the carrier board datasheet."
+    },
+    {
+      "area": "interfaces",
+      "ask": "From those documents: which pin and interface does each part use, and what's the one special thing about it?",
+      "hint": "e.g. 'RS485 = UART on D16/D17; OLED = I2C 0x3C; knob = ADC1 only.'"
+    },
+    {
+      "area": "connectivity",
+      "ask": "Does it talk to anything — WiFi/HTTP/MQTT/serial bus — and to what endpoint?",
+      "optional": true,
+      "hint": "'None, fully local' is a complete answer. Skip if the device is standalone."
+    },
+    {
+      "area": "constraints",
+      "ask": "What rules must the code respect — timing, blocking, power, security — and what does the AI usually get wrong on this hardware?",
+      "hint": "e.g. 'No delay() in loop; analog on ADC1 only; ISR just sets a flag.'"
+    },
+    {
+      "area": "safety",
+      "ask": "Does anything here move, heat, carry mains, drive a motor, or run unattended? Tell me what must NEVER happen, the limits I must enforce in code, and the safe resting state on boot, on fault, and on power loss.",
+      "required": true,
+      "hint": "Answer as a specification I can implement, not as advice for you. e.g. 'Servo must never be commanded outside 0-90 deg or driven into an end-stop; reject any command outside that range. Park at 0 deg on boot before reading the bus, and again on loss of comms.' If genuinely nothing moves or heats, say 'low-risk: sensing and indication only' and still tell me what must never happen -- e.g. 'the alarm must never be disabled by a network fault'."
+    },
+    {
+      "area": "failure_modes",
+      "ask": "When something fails — sensor dead, link lost, garbage received — what should the device do?",
+      "hint": "e.g. 'Show STALE after 3 missed frames; never act on unvalidated data.'"
+    },
+    {
+      "area": "reuse",
+      "ask": "What can we reuse from your earlier projects — prompt templates, spec cards, a REQUIREMENTS.md?",
+      "optional": true,
+      "hint": "e.g. 'wifi-nonblocking template from the gateway project; hardware same as the monitor build — REQUIREMENTS attached.'"
+    },
+    {
+      "area": "scope_out",
+      "ask": "What is explicitly OUT of scope for this build?",
+      "hint": "e.g. 'No cloud, no encryption, no mesh.' Stops me over-engineering."
+    },
+    {
+      "area": "acceptance",
+      "ask": "How will we know it's done? Give me testable pass/fail checks I can run on the hardware.",
+      "hint": "e.g. 'A deliberately corrupted frame is rejected; display updates within 5 s.'"
+    }
   ],
-
   "interview_rules": [
     "Ask ONE question at a time and wait for my answer.",
     "Each question's `hint` shows the shape of a good answer — one line like the hint is enough; don't demand essays.",
@@ -89,7 +142,6 @@
     "Keep the whole interview inside ~15 minutes; depth goes into follow-ups on what is NEW in this build.",
     "Before writing any file, summarize the full scope and let me correct it."
   ],
-
   "must_extract_from_docs": [
     "interface type (I2C / SPI / UART / analog / digital / PWM)",
     "each pin number and its DIRECTION (input-only vs bidirectional)",
@@ -102,7 +154,6 @@
     "for actuators: travel limits, stall behaviour, and whether position feedback exists",
     "any documented gotcha (input-only pins, analog-vs-radio conflicts, slow poll rates, shared buses)"
   ],
-
   "engineering_principles": [
     "Never assume a pin or electrical capability the datasheet does not confirm.",
     "Prefer non-blocking code — no delay() in the main loop unless justified.",
@@ -111,7 +162,6 @@
     "Treat every external input (sensor reading, network payload, bus frame, remote command) as untrusted until validated.",
     "Every requirement must be testable on real hardware; every phase must be verified on real hardware."
   ],
-
   "safety_principles": [
     "ELECTRICAL: confirm voltage and logic-level compatibility from the datasheets BEFORE first power-up. A 5 V part on a 3.3 V input, or vice versa, is a design fault — not something to discover by plugging it in.",
     "CURRENT: check per-pin and per-rail current limits. Never power a motor, servo or heater from a logic rail. Account for inrush and stall current, not just nominal.",
@@ -126,15 +176,14 @@
     "BATTERIES: observe polarity, charge current and chemistry-specific handling rules. Never leave a charging cell unattended.",
     "MAINS: if any part of the build touches mains voltage, it is out of scope for an AI-assisted prototype unless a qualified person has reviewed and signed off the design."
   ],
-
   "output_spec": {
-    "files": ["REQUIREMENTS.md", "PHASES.md"],
+    "files": [
+      "REQUIREMENTS.md",
+      "PHASES.md"
+    ],
     "location": "root of the current PlatformIO project",
-
     "requirements_format": "Markdown with these numbered sections: 1 One-line goal · 2 Context (what problem this solves, who operates it) · 3 Hardware (fixed — table of part/interface/pin/address/library) · 4 Hard constraints (paste into every prompt) · 5 SAFETY requirements and the safe resting state for boot / fault / power loss · 6 Functional requirements (numbered, testable) · 7 Non-functional requirements · 8 Interfaces/data contract · 9 Explicitly OUT of scope · 10 Acceptance criteria (checkboxes, each verifiable on hardware) · 11 Known risks / where the AI is likely to be wrong. You MAY improve the structure if it makes the spec clearer — note what you changed and why.",
-
     "phases_format": "Markdown build plan. One phase = one prompt-build-and-VERIFY-ON-HARDWARE cycle; do not jump ahead. Shape: Phase 0 prerequisites and safety pre-checks · Phase 1 skeleton, pin map and first physical proof of life · one phase per subsystem · integration phase · robustness/fault-injection phase · acceptance phase. End the file with a prompt-log table (| # | Phase | What I asked | What the AI got wrong | My fix |) and a 'Reusable prompt templates saved from this project' list.",
-
     "phase_structure": {
       "note": "EVERY phase must follow this shape. A phase that cannot be physically observed is not a phase — merge it into the next one.",
       "required_fields": [
@@ -155,7 +204,6 @@
         "The acceptance phase re-runs every acceptance criterion from REQUIREMENTS on the assembled device, not on subsystems in isolation."
       ]
     },
-
     "rules": [
       "Put every hardware constraint I confirmed (from the datasheet) into REQUIREMENTS §4.",
       "Put every safety answer, plus every relevant item from `safety_principles`, into REQUIREMENTS §5 — including the explicit safe resting state for boot, fault and power loss. This section must never be empty; if the build is genuinely low-risk, say so and state why.",
@@ -165,7 +213,6 @@
       "Keep the acceptance criteria I gave you as REQUIREMENTS §10 — these define 'done', and each must be checkable on the hardware."
     ]
   },
-
   "completion_report": {
     "note": "When the final phase is verified, report in PROJECT terms. Do not refer to lessons, topics, training or 'the next topic'.",
     "say": [
@@ -176,6 +223,5 @@
     ],
     "example": "All 6 acceptance criteria verified on hardware. 3 prompt templates saved. Known limitation: no position feedback on the actuator, so achieved position is inferred. Safety: device parks the actuator on boot and on comms loss; do not leave it running unattended until the watchdog is added."
   },
-
   "definition_of_done": "REQUIREMENTS.md and PHASES.md exist in the project root; hardware facts are taken from the datasheets I provided (not assumed); §5 states the safety requirements and safe resting states; §11 lists the known traps for this hardware; failure behaviour is specified; every acceptance criterion is checkable on the hardware; every phase ends in a physical test; and I have reviewed and approved both files before any code is written."
 }

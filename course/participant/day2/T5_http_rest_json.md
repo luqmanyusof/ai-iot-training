@@ -59,6 +59,7 @@ Extend your monitor so that:
 | Interfaces | POST `{"temp":..,"humidity":..,"threshold":..,"state":"..","uptime_s":..}`; GET expects `{"threshold":N}`. |
 | Connectivity | WiFi + HTTP to the trainer's test endpoint. |
 | Constraints | ArduinoJson only (no `String` concatenation); gate every response transport→status→parse→type; `setTimeout(5000)`; `http.end()` on all paths; non-blocking interval. |
+| Safety | **Low risk, but the blast radius grew:** a remote value now influences behaviour. A malformed or out-of-range threshold must never silently disable the alarm — reject it, fall back to the knob, and show `LOCAL` so the operator knows. |
 | Failure modes | 500 / HTML / truncated / silent → no crash, no bad action; last-good + `LOCAL`; retry later; alarm unaffected. |
 | Reuse *(opt.)* | T4 REQUIREMENTS; wifi-nonblocking + secrets-in-nvs templates. |
 | Out of scope | No MQTT (T6), no TLS, no auth flows beyond a static token. |

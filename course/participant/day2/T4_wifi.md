@@ -57,6 +57,7 @@ Make your T3 monitor **network-aware**, where:
 | Interfaces | Same as T3; the knob **must** prove itself on ADC1 with the radio on. |
 | Connectivity | WiFi station only — no HTTP/MQTT yet (T5/T6). |
 | Constraints | No blocking connect; backoff 1→2→4 s… capped ~30 s; creds in NVS via `Preferences`; sensor/display timers independent of link state. |
+| Safety | **Low risk, unchanged from T3.** New concern is unattended running: the device now stays powered for long periods, so a WiFi drop must never leave it permanently silent. Boot state: quiet, OK, local threshold, regardless of link state. |
 | Failure modes | AP gone → keep monitoring + alarming locally, no reboot; rejoin unaided; alarm latency unaffected. |
 | Reuse *(opt.)* | T3 REQUIREMENTS wholesale; non-blocking-timer template. |
 | Out of scope | No HTTP, MQTT, cloud, captive portal, or OTA. |

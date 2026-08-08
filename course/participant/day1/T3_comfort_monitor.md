@@ -53,6 +53,7 @@ Build a Smart Comfort Monitor where:
 | Interfaces | DHT11 = **digital 1-wire** on any digital port; OLED = I²C `0x3C` on D21/D22 (SSD1306-compatible driver); rotary = ADC1. |
 | Connectivity | None — deliberately local; Day 2 puts this exact device online. |
 | Constraints | DHT11 is NOT I²C (`0x38` is the DHT20 — a different part); poll no faster than 1–2 s; independent `millis()` timers; no `delay()` anywhere. |
+| Safety | **Low risk — sensing and indication only.** First build where a wrong reading has a consequence, but a stuck alarm is a nuisance, not a hazard. Boot state: quiet and OK until the first *valid* sensor reading arrives — never alarm on startup garbage. |
 | Failure modes | NaN/failed DHT read → keep last good + flag it; display keeps refreshing regardless. |
 | Reuse *(opt.)* | T2 analog-read + moving-average templates; T1 state-machine pattern; prior REQUIREMENTS. |
 | Out of scope | No network, no cloud, no logging. |

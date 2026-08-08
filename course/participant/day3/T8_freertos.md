@@ -66,6 +66,7 @@ Rebuild your T6 monitor so that:
 | Interfaces | Gesture on I²C **`0x73` (verify by scan)**, Grove Port 2; no OLED; I²C is now a resource shared between tasks. |
 | Connectivity | Same as T6. |
 | Constraints | Stacks sized from `uxTaskGetStackHighWaterMark` (argument is **bytes** on ESP32); queues not globals; mutex on `Wire`; `vTaskDelay` only; heavy work off Core 0; `loop()` essentially empty. |
+| Safety | **Everything from T7 still applies, plus a new failure path:** an undersized stack reboots the board *mid-motion*. The servo must therefore reach its safe park position at boot, before any task is allowed to command it. Do not disable the watchdog to silence a symptom — it is the thing that catches a wedged task. |
 | Failure modes | Any reset must be explainable from the panic backtrace; queue-full policy defined; zero watchdog trips in the soak. |
 | Reuse *(opt.)* | T6 REQUIREMENTS wholesale — this is a refactor, not a feature build. |
 | Out of scope | One new input only — no OTA, no power management, no new cloud features. |

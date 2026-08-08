@@ -74,6 +74,7 @@ Build a **cross-control link** where:
 | Interfaces | RS485 = **UART on D16/D17** (`Serial2`); servo = PWM on a servo header; knob = **ADC1 only**. |
 | Connectivity | RS485 half-duplex 2-wire, 2 nodes, A→A / B→B, matched baud, 120 Ω terminated. |
 | Constraints | **ESP32Servo**, not `Servo.h`; non-blocking servo motion; only one node may drive the bus at a time; `flush()` before switching to receive; frames addressed + checksummed; knob stays on ADC1. |
+| Safety | **First moving actuator — treat this seriously.** The servo arm can pinch: keep fingers and cables clear on first power-up, start from mid-range and move slowly. Enforce travel limits in software (500–2500 µs); never drive into a mechanical end-stop — a stalled servo draws heavy current continuously and can brown-out the board. **Safe resting state: park at a defined angle on boot, and on ≥3 missed frames or bus loss.** A corrupt frame must never reach the servo. |
 | Failure modes | Bad checksum → reject + count; wrong address → ignore; ≥3 missed frames → `STALE` + servo to fail-safe position; local knob/display unaffected. |
 | Reuse *(opt.)* | T2 analog-read + moving-average templates; T3 OLED + non-blocking timers; T5's defensive-parse discipline applied to bytes. |
 | Out of scope | No WiFi/MQTT, no Modbus library (write your own frame), no more than 2 nodes, no encryption. |

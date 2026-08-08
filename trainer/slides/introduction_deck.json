@@ -356,7 +356,7 @@
         },
         {
           "label": "Crowtail DHT11",
-          "sublabel": "Digital 1-wire — **not I²C**; poll every 1–2 s",
+          "sublabel": "Digital 1-wire on **Grove Port 3 (D26/D25)** — **not I²C**; poll every 1–2 s",
           "image": {
             "url": "https://files.seeedstudio.com/wiki/Grove-TemperatureAndHumidity_Sensor/img/main.jpg",
             "alt": "Grove Temperature and Humidity Sensor DHT11"
@@ -404,7 +404,7 @@
       "title": "Port allocation for the week",
       "diagram": {
         "format": "mermaid",
-        "mermaid": "flowchart LR\n    B[\"ROBO ESP32<br/>Rev 1.1\"]\n    B -->|\"I²C D21/D22 — Port 2\"| O[\"OLED 0x3C (T3–T7)<br/>⇄ Gesture 0x73 (T8–T9)<br/><i>one port, swapped</i>\"]\n    B -->|\"UART D16/D17\"| R[\"Grove RS485\"]\n    B -->|\"any digital\"| D[\"DHT11\"]\n    B -->|\"ADC1 D32/D33\"| K[\"Rotary Angle\"]\n    B -->|\"servo header\"| S[\"TS90A Servo\"]\n    B -.->|onboard| N[\"NeoPixel D15<br/>Buzzer D23<br/>Buttons D34/D35\"]\n    style B fill:#0C4A6E,stroke:#38BDF8,color:#E0F2FE\n    style N fill:#1E293B,stroke:#94A3B8,color:#CBD5E1"
+        "mermaid": "flowchart LR\n    B[\"ROBO ESP32<br/>Rev 1.1\"]\n    B -->|\"I²C D21/D22 — Port 2\"| O[\"OLED 0x3C (T3–T7)<br/>⇄ Gesture 0x73 (T8–T9)<br/><i>one port, swapped</i>\"]\n    B -->|\"UART D16/D17\"| R[\"Grove RS485\"]\n    B -->|\"Grove Port 3 — D26/D25\"| D[\"DHT11\"]\n    B -->|\"ADC1 D32/D33\"| K[\"Rotary Angle\"]\n    B -->|\"servo header\"| S[\"TS90A Servo\"]\n    B -.->|onboard| N[\"NeoPixel D15<br/>Buzzer D23<br/>Buttons D34/D35\"]\n    style B fill:#0C4A6E,stroke:#38BDF8,color:#E0F2FE\n    style N fill:#1E293B,stroke:#94A3B8,color:#CBD5E1"
       },
       "speaker_notes": "There is only ONE I²C Grove port. The OLED owns it for T3–T7; the gesture sensor takes it from T8 and the device goes headless — the T6 dashboard becomes the display. One physical swap, never both at once, so no hub or QWIIC cable is needed."
     },

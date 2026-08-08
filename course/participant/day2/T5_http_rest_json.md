@@ -1,6 +1,15 @@
 # T5 · HTTP/REST & JSON — Talking to a Server That Lies to You
 **Day 2 · ~2 hours · Participant guide**
 
+## What you'll build
+**In plain words:** your monitor starts talking to a web server. It sends its readings up on a
+schedule, and asks the server what comfort limit to use. The interesting part is what happens when
+the server misbehaves — an error, a web page instead of data, half an answer, or no reply at all.
+The device notices, ignores the bad answer, falls back to the knob, and says so on screen.
+
+**The moment it works:** the server is broken on purpose in four different ways, and the device
+keeps behaving correctly through every one of them.
+
 ## Objective
 Talk to a server that lies to you. By the end you can:
 - **Speak HTTP deliberately** — verbs, status codes, and the difference between a transport failure and an application answer.

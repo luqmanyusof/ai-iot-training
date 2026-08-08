@@ -1,6 +1,14 @@
 # T3 · I²C Display + Digital Sensor → Smart Comfort Monitor
 **Day 1 · ~2 hours · Participant guide**
 
+## What you'll build
+**In plain words:** a room comfort monitor. A small screen shows the current temperature and
+humidity. You turn a knob to set a comfort limit, which also shows on the screen. When the room
+crosses that limit, the light turns red and a buzzer sounds.
+
+**The moment it works:** turn the knob down past the current room temperature — the alarm fires
+straight away, and the screen carries on updating the whole time instead of freezing.
+
 ## Objective
 The Day-1 integration: three inputs/outputs you now understand, one non-blocking device. By the end you can:
 - **Drive an I²C bus** — scan it, find your device's address, and prove the wiring before writing driver code.

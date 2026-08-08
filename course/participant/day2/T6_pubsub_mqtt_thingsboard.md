@@ -1,6 +1,15 @@
 # T6 · Pub/Sub → MQTT → ThingsBoard — Your Device on a Dashboard
 **Day 2 · ~2 hours · Participant guide**
 
+## What you'll build
+**In plain words:** your monitor appears on a web dashboard you can open from any browser — live
+readings, a chart over time, and an alarm indicator. Then it works the other way too: type a new
+comfort limit into the browser, and the device on the bench obeys it.
+
+**The moment it works:** the dashboard goes on the projector, you breathe on the sensor, and the
+whole room watches the line move. Then you change the limit from the browser and hear the buzzer
+answer.
+
 ## Objective
 From request/response to publish/subscribe — and onto a wall dashboard. This is the Day-2 deliverable. By the end you can:
 - **Explain why pub/sub exists** — you felt what a flaky server costs in T5; a broker decouples that.

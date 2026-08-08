@@ -1,6 +1,14 @@
 # T4 · WiFi — Connecting Without Blocking
 **Day 2 · ~2 hours · Participant guide**
 
+## What you'll build
+**In plain words:** the same room monitor, now on WiFi. The screen gains a connection status and
+signal strength. The real point is what happens when the network isn't there: the device keeps
+measuring, displaying and alarming exactly as before, and rejoins by itself when WiFi returns.
+
+**The moment it works:** switch the hotspot off mid-run. Nothing on the device stutters. Switch it
+back on and it reconnects without you touching it.
+
 ## Objective
 Put your Day-1 Comfort Monitor online **without breaking it**. By the end you can:
 - **Reject the blocking connect** — the `while(!connected) delay()` the AI always writes, and why it's a production bug.

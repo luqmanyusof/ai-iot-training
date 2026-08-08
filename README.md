@@ -284,8 +284,8 @@ Dependency-ordered — nothing is used before it is taught.
 | 1 | **T1** GPIO & Digital I/O | prompt skeleton, pins, debounce, interrupt | onboard buttons, buzzer, NeoPixel |
 | 1 | **T2** Analog & ADC | ADC1-vs-WiFi, filtering, mapping | Rotary Angle |
 | 1 | **T3** Comfort Monitor | I²C bus, DHT 1-wire, non-blocking timers | DHT11, OLED, Rotary |
-| 2 | **T4** WiFi | station mode, NVS secrets, backoff reconnect | (+ onboard radio) |
-| 2 | **T5** HTTP/REST & JSON | status codes, defensive parse, timeouts | (+ test endpoint) |
+| 2 | **T4** WiFi AP + HTTP server | access-point mode, serving GET/POST, untrusted requests | (+ onboard radio) · *pairs* |
+| 2 | **T5** WiFi client + HTTP client | station mode, consuming GET/POST, defensive parse | (+ partner's server) · *pairs* |
 | 2 | **T6** MQTT → ThingsBoard | pub/sub, topics, dashboard, RPC | (+ broker/cloud) |
 | 3 | **T7** UART & RS485 | half-duplex bus, framing, addressing, fail-safe | Grove RS485 + TS90A servo |
 | 3 | **T8** FreeRTOS | tasks, queues, mutex, stack forensics | **+ Gesture PAJ7660** |
@@ -294,11 +294,11 @@ Dependency-ordered — nothing is used before it is taught.
 | Day | You end the day with |
 |---|---|
 | **1** | A local monitor: OLED + DHT11 + knob threshold + alarm |
-| **2** | That device live on a cloud dashboard, controllable remotely |
+| **2** | A board serving its own API, a board consuming one, and both on a cloud dashboard |
 | **3** | Your own scoped mini project — demoed, broken on purpose, and defended |
 
 **Knowledge chain:**
-`prompt+pins → digital I/O → analog/ADC → I²C+1-wire → WiFi → HTTP/JSON → MQTT/ThingsBoard → UART/RS485 → FreeRTOS+gesture → scoping/integration/security`
+`prompt+pins → digital I/O → analog/ADC → I²C+1-wire → WiFi AP + HTTP server → WiFi client + HTTP client → MQTT/ThingsBoard → UART/RS485 → FreeRTOS+gesture → scoping/integration/security`
 
 **T9 is a mini project.** Six options (vent controller, cold-chain monitor, access panel, two-node
 gateway, calibration rig, or your own) — each needs ≥1 input, ≥1 output, ThingsBoard telemetry and a
@@ -312,8 +312,8 @@ validated downlink command. Details in the T9 guide.
 - ✅ `hardware/modules/` — course-written spec cards, one per kit part
 - ⏳ MQTT broker + ThingsBoard setup guides — not yet written (the room checklist says what must be
   true, not how to get there)
-- ⏳ T5 needs the trainer-hosted test endpoint with four switchable failure modes — the topic is
-  hollow without it
+- ⏳ T5's hostile-server modes (500 / HTML / truncated / silent) are driven by the partner's T4
+  board — have a trainer fallback server ready for odd numbers or pairs running behind
 
 ## Sources
 Hardware spec cards in `hardware/modules/` are original summaries written for this course, each

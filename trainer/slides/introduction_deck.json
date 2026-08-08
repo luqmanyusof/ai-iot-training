@@ -495,8 +495,8 @@
         ],
         [
           "2",
-          "T4 WiFi · T5 HTTP/JSON · T6 MQTT→ThingsBoard",
-          "That device live on a cloud dashboard, controllable remotely"
+          "T4 WiFi AP + HTTP server · T5 WiFi client + HTTP client · T6 MQTT→ThingsBoard",
+          "A board serving its own API, a board consuming one, and both on a cloud dashboard"
         ],
         [
           "3",
@@ -510,7 +510,7 @@
       "title": "Knowledge chain — nothing used before it is taught",
       "diagram": {
         "format": "mermaid",
-        "mermaid": "flowchart LR\n    A[\"prompt<br/>+ pins\"] --> B[\"digital<br/>I/O\"] --> C[\"analog<br/>ADC\"] --> D[\"I²C +<br/>1-wire\"] --> E[\"WiFi\"] --> F[\"HTTP<br/>JSON\"] --> G[\"MQTT<br/>ThingsBoard\"] --> H[\"UART<br/>RS485\"] --> I[\"FreeRTOS\"] --> J[\"architecture<br/>security\"]\n    style A fill:#0C4A6E,stroke:#38BDF8,color:#E0F2FE\n    style J fill:#052E2B,stroke:#34D399,color:#A7F3D0"
+        "mermaid": "flowchart LR\n    A[\"prompt<br/>+ pins\"] --> B[\"digital<br/>I/O\"] --> C[\"analog<br/>ADC\"] --> D[\"I²C +<br/>1-wire\"] --> E[\"WiFi AP<br/>+ server\"] --> F[\"WiFi client<br/>+ HTTP client\"] --> G[\"MQTT<br/>ThingsBoard\"] --> H[\"UART<br/>RS485\"] --> I[\"FreeRTOS\"] --> J[\"architecture<br/>security\"]\n    style A fill:#0C4A6E,stroke:#38BDF8,color:#E0F2FE\n    style J fill:#052E2B,stroke:#34D399,color:#A7F3D0"
       }
     }
   ]

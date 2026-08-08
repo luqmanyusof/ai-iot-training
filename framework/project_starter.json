@@ -183,7 +183,7 @@
     ],
     "location": "root of the current PlatformIO project",
     "requirements_format": "Markdown with these numbered sections: 1 One-line goal · 2 Context (what problem this solves, who operates it) · 3 Hardware (fixed — table of part/interface/pin/address/library) · 4 Hard constraints (paste into every prompt) · 5 SAFETY requirements and the safe resting state for boot / fault / power loss · 6 Functional requirements (numbered, testable) · 7 Non-functional requirements · 8 Interfaces/data contract · 9 Explicitly OUT of scope · 10 Acceptance criteria (checkboxes, each verifiable on hardware) · 11 Known risks / where the AI is likely to be wrong. You MAY improve the structure if it makes the spec clearer — note what you changed and why.",
-    "phases_format": "Markdown build plan. One phase = one prompt-build-and-VERIFY-ON-HARDWARE cycle; do not jump ahead. Shape: Phase 0 prerequisites and safety pre-checks · Phase 1 skeleton, pin map and first physical proof of life · one phase per subsystem · integration phase · robustness/fault-injection phase · acceptance phase. End the file with a prompt-log table (| # | Phase | What I asked | What the AI got wrong | My fix |) and a 'Reusable prompt templates saved from this project' list.",
+    "phases_format": "Markdown build plan. One phase = one prompt-build-and-VERIFY-ON-HARDWARE cycle; do not jump ahead. Shape: an unnumbered **Pre-flight** section (prerequisites, wiring and safety pre-checks — human gates, not a build cycle), then **Phase 1 onwards**: Phase 1 skeleton, pin map and first physical proof of life · one phase per subsystem · integration phase · robustness/fault-injection phase · acceptance phase. End the file with a prompt-log table (| # | Phase | What I asked | What the AI got wrong | My fix |) and a 'Reusable prompt templates saved from this project' list.",
     "phase_structure": {
       "note": "EVERY phase must follow this shape. A phase that cannot be physically observed is not a phase — merge it into the next one.",
       "required_fields": [
@@ -196,12 +196,14 @@
         "**Verified:** — left blank for the human to date and initial after actually running the test."
       ],
       "rules": [
+        "**Numbering starts at Phase 1.** There is no Phase 0. Prerequisites, wiring checks and safety pre-checks go in an unnumbered Pre-flight section above Phase 1 — they are things the human confirms, not something you build, so they must not be numbered as if they were a build cycle.",
         "Every phase ends with a HARDWARE TEST performed on the real device. No exceptions.",
         "If a phase's work genuinely cannot be observed on hardware (pure refactor, config change), merge it with the following phase so the pair ends in a physical test. Never allow two consecutive phases with no physical verification.",
         "Prefer a test the human can perform in under a minute with no extra equipment.",
         "Where an actuator is involved, the FIRST hardware test of that actuator must be a limited, slow, observed movement — not a full-range or full-speed run.",
         "Fault-injection tests are hardware tests too: unplug the sensor, pull the network, corrupt a frame, block the actuator — and state the safe outcome to look for.",
-        "The acceptance phase re-runs every acceptance criterion from REQUIREMENTS on the assembled device, not on subsystems in isolation."
+        "The acceptance phase re-runs every acceptance criterion from REQUIREMENTS on the assembled device, not on subsystems in isolation.",
+        "When you hand PHASES.md over for review, the next thing you offer to build is **Phase 1** — make sure the file you wrote actually starts there."
       ]
     },
     "rules": [

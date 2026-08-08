@@ -59,7 +59,7 @@ Build a **network-aware room monitor**, where:
 | Interfaces | DHT11 = digital 1-wire; OLED = I²C `0x3C` on D21/D22; knob = **ADC1 (D32/D33) only** — it must still read correctly with the radio on. |
 | Connectivity | WiFi station mode only — no HTTP, no MQTT, no cloud. |
 | Constraints | No blocking connect; backoff 1→2→4 s… capped ~30 s; creds in NVS via `Preferences`; sensor/display timers independent of link state. |
-| Safety | **Low risk — sensing and indication only.** The concern here is unattended running: the device now stays powered for long periods, so a WiFi drop must never leave it permanently silent. Boot state: quiet, OK, local threshold, regardless of link state. |
+| Safety | Sensing and indication only, but it runs unattended for long periods. **Must never happen:** alarm behaviour being altered, suppressed or delayed as a side effect of network state. **Safe state on boot:** quiet, OK, local threshold, alarm armed — independent of link status. Connection handling must not block or gate the sensing and alarm path. |
 | Failure modes | AP gone → keep monitoring + alarming locally, no reboot; rejoin unaided; alarm latency unaffected. |
 | Reuse *(opt.)* | Any prompt templates you already have that fit — a non-blocking-timer template, or an existing sensor/display spec. If you have none yet, this project starts the library. |
 | Out of scope | No HTTP, MQTT, cloud, captive portal, or OTA. |

@@ -51,7 +51,7 @@ Build a device where:
 | Interfaces | Rotary = analog on **ADC1 (D32/D33) only**; NeoPixel = D15. |
 | Connectivity | None. |
 | Constraints | ADC1 only — ADC2 stops working the moment a radio is enabled; 12-bit 0–4095; non-blocking loop. |
-| Safety | **Low risk — sensing and indication only; nothing moves.** The NeoPixel at full brightness is uncomfortable to look at directly — keep it dim while you are bench-testing at close range. |
+| Safety | Nothing moves or heats — low risk. **Must never happen:** the output driven from an unfiltered or out-of-range reading, or at full scale on boot before the knob has been read. **Safe state on boot:** output at zero until the first valid filtered reading exists. Clamp the mapped value to its defined range so a bad sample cannot drive the output out of bounds. |
 | Failure modes | Raw jitter must never reach the output — filter first; note the flat zones near 0/4095. |
 | Reuse *(opt.)* | Any prompt templates you already have that fit — a digital-output template, or a board spec you have already written up. If you have none yet, this project starts the library. |
 | Out of scope | No network, no display, no thresholds — the knob and the light only. |

@@ -60,7 +60,7 @@ Extend your monitor so that:
 | Interfaces | TB telemetry `v1/devices/me/telemetry`; RPC `v1/devices/me/rpc/request/+`; own broker `training/<room>/<device>/telemetry`. |
 | Connectivity | MQTT to the room broker + ThingsBoard. **Auth: token = MQTT username, password empty.** |
 | Constraints | `client.loop()` every iteration; non-blocking publish + backoff reconnect; token in NVS; namespaced topics; tiny callback; validate every inbound JSON payload before acting on it. |
-| Safety | **Low risk, but the cloud can now command the device.** Range-check every RPC before applying it; an out-of-range value is rejected and logged, never applied. Losing the broker must not leave the alarm disabled — local alarming continues regardless. |
+| Safety | Sensing and indication only, with a remote command path. **Must never happen:** an out-of-range or malformed RPC changing device behaviour, or loss of the broker disabling local alarming. Every inbound command is validated and range-checked before it is applied; rejections are logged, never silently clamped. **Safe state on boot and on broker loss:** local threshold, alarm armed. |
 | Failure modes | Broker gone → local alarm continues, backoff reconnect, LWT fires; malformed command rejected, never applied. |
 | Reuse *(opt.)* | Any prompt templates you already have that fit — a defensive JSON-parse template, or a non-blocking WiFi pattern. If you have none yet, this project starts the library. |
 | Out of scope | No TLS/8883, no provisioning API, no OTA, no rules engine. |

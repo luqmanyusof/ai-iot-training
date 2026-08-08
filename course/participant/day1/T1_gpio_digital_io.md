@@ -55,7 +55,7 @@ Build a device where:
 | Interfaces | Button = digital in **D34, input-only, no pull-up**; buzzer = digital out D23; NeoPixel = D15 (Adafruit NeoPixel). |
 | Connectivity | None — fully local. |
 | Constraints | No `delay()` in loop; `millis()` debounce 20–50 ms; ISR = `IRAM_ATTR`, sets a `volatile` flag only; no `INPUT_PULLUP` on D34/D35. |
-| Safety | **Low risk — indication only; nothing moves or heats.** The buzzer is loud at desk distance: find the onboard mute switch before a long run. Safe state on boot: IDLE, buzzer silent, before any press is accepted. |
+| Safety | Nothing moves or heats — low risk. **Must never happen:** the buzzer latching on with no way to clear it, or an output driven before the input is known. **Safe state on boot:** IDLE — buzzer off, NeoPixel off — held until the first debounced press is accepted. Any continuous tone must be bounded in duration so a stuck state cannot sound indefinitely. |
 | Failure modes | Bounce or electrical noise must never double-count; no missed presses at 5 presses/s. |
 | Reuse *(opt.)* | Nothing yet — this project starts the prompt library. |
 | Out of scope | No sensors, no network, no display. |

@@ -20,7 +20,7 @@ Two things live here, deliberately separated:
 │   ├── project_starter.json      # copy into every new PlatformIO project — the intake engine
 │   └── START_PROMPT.md           # copy-paste prompts: kickoff, build-a-phase, verify, carry-forward
 ├── course/
-│   └── participant/day1-3/       # the nine topic guides (T1-T9)
+│   └── participant/day1-3/       # the nine topic guides (T1-T9) + TBONUS (optional)
 └── hardware/
     ├── kit_reference_sheet.md    # every pin/address/library/gotcha + failure table
     ├── Robo_ESP32_Rev1.1_Datasheet.md
@@ -305,10 +305,31 @@ Dependency-ordered — nothing is used before it is taught.
 gateway, calibration rig, or your own) — each needs ≥1 input, ≥1 output, ThingsBoard telemetry and a
 validated downlink command. Details in the T9 guide.
 
+### Bonus — TBONUS · PlatformIO from the terminal + Claude Code
+**Optional · ~90 min · Day 3 or take-home ·**
+[`course/participant/day3/TBONUS_platformio_claude_code.md`](course/participant/day3/TBONUS_platformio_claude_code.md)
+
+A deliberately tiny build — **a button that moves a servo** — used to swap out both halves of the
+toolchain and see whether the method survives:
+
+- **No wizard, no browser.** The project is created with `pio project init` from a terminal.
+- **A different agent.** Claude Code runs *inside* the project directory: it reads
+  `project_starter.json` off disk, edits files in place, and runs your build itself. **The kickoff
+  prompt is unchanged** — that is the point.
+- **Both cases covered** — a fresh project, and pointing the agent at an *existing* one (your T1–T9
+  builds) with a restore point, a `CLAUDE.md` of standing rules, and "extend, do not rewrite."
+- **The new hazard:** an agent that can compile will iterate until it compiles. Compiling is still
+  not working — and that gap gets *wider* when the agent closes the compile loop without you. **The
+  agent owns the compile; you own the upload.**
+
+Needs no hardware beyond the TS90A servo and the onboard button. It is outside the dependency chain,
+so it can run at any point after T7 or be taken home.
+
 ---
 
 ## Build status
 - ✅ All 9 topics — participant guides complete
+- ✅ TBONUS (PlatformIO CLI + Claude Code, button-driven servo) — optional, outside the dependency chain
 - ✅ Two slide-deck specs (orientation, FreeRTOS) — on the `trainer` branch
 - ✅ `hardware/modules/` — course-written spec cards, one per kit part
 - ⏳ MQTT broker + ThingsBoard setup guides — not yet written (the room checklist says what must be

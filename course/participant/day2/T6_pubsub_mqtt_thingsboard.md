@@ -50,8 +50,8 @@ Extend your monitor so that:
 > topic design, token handling and the downlink command.
 
 ### Sample prompt to add MQTT subscription dashboard widget  
-> Add MQTT subscribe to v1/devices/me/attributes, parse shared attribute switchState (boolean), toggle onboard LED.
-> Add MQTT subscribe to v1/devices/me/attributes, parse shared attribute tempLimit (float), store as temperature threshold.
+- Add MQTT subscribe to v1/devices/me/attributes, parse shared attribute switchState (boolean), toggle onboard LED.
+- Add MQTT subscribe to v1/devices/me/attributes, parse shared attribute tempLimit (float), store as temperature threshold.
 
 ### Starter interview — suggested answers (T6)
 | Area | Your answer |
